@@ -1,1 +1,249 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>涩图time · Demo Gallery</title>
+  <meta name="description" content="一个纯静态、可直接部署到 GitHub Pages 的图片画廊模板，支持懒加载、灯箱、搜索、筛选与无限加载。" />
+  <style>
+    :root{
+      --bg:#0b0c10; --card:#11131a; --text:#e8eaf0; --muted:#9aa3b2; --accent:#6aa3ff; --ring:#3b82f6;
+      --gap:14px; --radius:16px; --shadow:0 10px 25px rgba(0,0,0,.35);
+    }
+    @media (prefers-color-scheme: light){
+      :root{ --bg:#f6f7fb; --card:#ffffff; --text:#101318; --muted:#687385; --accent:#3b82f6; --ring:#2563eb; }
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{ margin:0; background:var(--bg); color:var(--text); font:16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji"; }
+
+    /* 顶部栏 */
+    .topbar{ position:sticky; top:0; z-index:50; backdrop-filter:saturate(1.3) blur(10px); background:color-mix(in oklab, var(--bg) 82%, transparent); border-bottom:1px solid color-mix(in oklab, var(--text) 15%, transparent); }
+    .topbar-inner{ max-width:1100px; margin:0 auto; padding:14px 18px; display:flex; gap:12px; align-items:center; }
+    .brand{ font-weight:700; letter-spacing:.2px; }
+    .muted{ color:var(--muted); }
+
+    /* 控件 */
+    .controls{ display:flex; flex-wrap:wrap; gap:10px; margin-left:auto; }
+    .input, .btn, .select{ height:40px; border:1px solid color-mix(in oklab, var(--text) 10%, transparent); background:var(--card); color:var(--text); border-radius:12px; padding:0 12px; box-shadow:inset 0 -1px 0 rgba(255,255,255,.03); }
+    .input{ width:220px; }
+    .btn{ display:inline-flex; align-items:center; gap:8px; cursor:pointer; user-select:none; }
+    .btn:hover{ border-color:color-mix(in oklab, var(--text) 20%, transparent); }
+    .btn[aria-pressed="true"]{ outline:2px solid var(--ring); }
+    .select{ padding-right:32px; }
+
+    /* 容器 */
+    .wrap{ max-width:1100px; margin:22px auto; padding:0 18px 70px; }
+
+    /* Masonry 栅格（CSS columns 实现） */
+    .grid{ column-width: 280px; column-gap: var(--gap); }
+    @media (max-width:700px){ .grid{ column-width: 200px; } }
+
+    .card{ break-inside: avoid; margin: 0 0 var(--gap); background:var(--card); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); border:1px solid color-mix(in oklab, var(--text) 8%, transparent); }
+    .thumb{ width:100%; display:block; background: #0a0a0a; aspect-ratio: 4/3; object-fit:cover; }
+    .meta{ display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-top:1px dashed color-mix(in oklab, var(--text) 12%, transparent); font-size:13px; color:var(--muted); }
+    .tag{ padding:2px 8px; border-radius:999px; border:1px solid color-mix(in oklab, var(--text) 16%, transparent); }
+
+    /* 空状态 */
+    .empty{ text-align:center; color:var(--muted); padding:40px 10px; }
+
+    /* 灯箱 */
+    .lightbox{ position:fixed; inset:0; background:rgba(0,0,0,.82); display:none; align-items:center; justify-content:center; z-index:100; }
+    .lightbox.open{ display:flex; }
+    .lightbox img{ max-width: min(92vw, 1400px); max-height: 86vh; border-radius: 10px; box-shadow: var(--shadow); }
+    .lb-actions{ position:fixed; inset:0; display:flex; align-items:center; justify-content:space-between; padding:22px; pointer-events:none; }
+    .lb-btn{ pointer-events:auto; border:none; border-radius:12px; padding:10px 12px; background:rgba(255,255,255,.08); color:#fff; cursor:pointer; }
+    .lb-btn:hover{ background:rgba(255,255,255,.12); }
+    .lb-close{ position:fixed; top:16px; right:16px; }
+
+    /* 页脚 */
+    footer{ color:var(--muted); text-align:center; padding:28px 10px 60px; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">涩图time <span class="muted">· Demo</span></div>
+      <div class="controls">
+        <input id="q" class="input" type="search" placeholder="搜索（标题/标签）…" />
+        <select id="filterTag" class="select" aria-label="按标签筛选">
+          <option value="">全部标签</option>
+        </select>
+        <button id="shuffle" class="btn" type="button">随机顺序</button>
+        <button id="loadMore" class="btn" type="button">加载更多</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div id="grid" class="grid" aria-live="polite"></div>
+    <div id="empty" class="empty" hidden>未找到匹配结果</div>
+  </main>
+
+  <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="图片预览">
+    <div class="lb-actions">
+      <button class="lb-btn" id="prev" aria-label="上一张">⟨</button>
+      <button class="lb-btn" id="next" aria-label="下一张">⟩</button>
+    </div>
+    <button class="lb-btn lb-close" id="close" aria-label="关闭">✕</button>
+    <img id="lbImg" alt="预览" />
+  </div>
+
+  <footer>
+    纯静态前端，无后端依赖 · 直接部署到 GitHub Pages 即可
+  </footer>
+
+  <script>
+    // —— 1) 在这里配置你的图片清单（本地 /images 目录或外链都可）——
+    // 字段：src 原图地址；thumb 缩略图（可与 src 相同）；title 标题；tags 标签数组
+    const IMAGES = [
+      // 示例使用 Unsplash 版权友好占位图；上线时替换成你的图片地址
+      { src: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee', thumb: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600', title: 'City Night', tags: ['city','night'] },
+      { src: 'https://images.unsplash.com/photo-1491553895911-0055eca6402d', thumb: 'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=600', title: 'Cosplay', tags: ['people','fashion'] },
+      { src: 'https://images.unsplash.com/photo-1503342217505-b0a15cf70489', thumb: 'https://images.unsplash.com/photo-1503342217505-b0a15cf70489?w=600', title: 'Neon Street', tags: ['city','neon'] },
+      { src: 'https://images.unsplash.com/photo-1520975693416-35a56328bb6f', thumb: 'https://images.unsplash.com/photo-1520975693416-35a56328bb6f?w=600', title: 'Blue Hair', tags: ['portrait'] },
+      { src: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2', thumb: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600', title: 'Portrait', tags: ['portrait','people'] },
+      { src: 'https://images.unsplash.com/photo-1491349174775-aaafddd81942', thumb: 'https://images.unsplash.com/photo-1491349174775-aaafddd81942?w=600', title: 'Anime Vibes', tags: ['art','neon'] },
+      { src: 'https://images.unsplash.com/photo-1506089676908-3592f7389d4d', thumb: 'https://images.unsplash.com/photo-1506089676908-3592f7389d4d?w=600', title: 'Alley', tags: ['city'] },
+      { src: 'https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb', thumb: 'https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?w=600', title: 'Lights', tags: ['city','night'] },
+      { src: 'https://images.unsplash.com/photo-1517841905240-472988babdf9', thumb: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600', title: 'Cat', tags: ['animal'] },
+      { src: 'https://images.unsplash.com/photo-1506084868230-bb9d95c24759', thumb: 'https://images.unsplash.com/photo-1506084868230-bb9d95c24759?w=600', title: 'Streets', tags: ['city'] },
+      // ……继续追加到你的需要
+    ];
+
+    // —— 2) 轻量状态 ——
+    let filtered = [...IMAGES];
+    let page = 0;                // 当前页
+    const pageSize = 18;         // 每次加载数量
+    let currentIndex = -1;       // 灯箱当前索引（在 filtered 里的索引）
+
+    // —— 3) DOM 获取 ——
+    const grid = document.getElementById('grid');
+    const emptyEl = document.getElementById('empty');
+    const q = document.getElementById('q');
+    const filterTag = document.getElementById('filterTag');
+    const loadMoreBtn = document.getElementById('loadMore');
+    const shuffleBtn = document.getElementById('shuffle');
+
+    const lightbox = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lbImg');
+    const lbPrev = document.getElementById('prev');
+    const lbNext = document.getElementById('next');
+    const lbClose = document.getElementById('close');
+
+    // —— 4) 初始化标签筛选选项 ——
+    const allTags = Array.from(new Set(IMAGES.flatMap(i => i.tags || []))).sort();
+    allTags.forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t; opt.textContent = t; filterTag.appendChild(opt);
+    });
+
+    // —— 5) 渲染一批卡片 ——
+    function renderNextPage(){
+      const start = page * pageSize;
+      const slice = filtered.slice(start, start+pageSize);
+      slice.forEach((item, idx) => {
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.innerHTML = `
+          <img class="thumb" src="${item.thumb || item.src}" loading="lazy" alt="${item.title || 'image'}" />
+          <div class="meta">
+            <span>${item.title || '未命名'}</span>
+            <span class="tag">${(item.tags||[])[0]||'untagged'}</span>
+          </div>`;
+        card.addEventListener('click', () => openLightbox(start+idx));
+        grid.appendChild(card);
+      });
+      page++;
+      updateEmptyState();
+      updateLoadMoreVisibility();
+    }
+
+    function resetAndRender(){
+      grid.innerHTML = ''; page = 0; renderNextPage();
+    }
+
+    function updateEmptyState(){
+      const hasAny = filtered.length > 0;
+      emptyEl.hidden = hasAny; grid.hidden = !hasAny;
+    }
+
+    function updateLoadMoreVisibility(){
+      const more = page * pageSize < filtered.length;
+      loadMoreBtn.style.display = more ? 'inline-flex' : 'none';
+    }
+
+    // —— 6) 搜索 & 筛选 ——
+    function applyFilter(){
+      const kw = q.value.trim().toLowerCase();
+      const tag = filterTag.value;
+      filtered = IMAGES.filter(it => {
+        const byKw = !kw || (it.title||'').toLowerCase().includes(kw) || (it.tags||[]).some(t => t.includes(kw));
+        const byTag = !tag || (it.tags||[]).includes(tag);
+        return byKw && byTag;
+      });
+      resetAndRender();
+    }
+
+    q.addEventListener('input', debounce(applyFilter, 200));
+    filterTag.addEventListener('change', applyFilter);
+
+    // —— 7) 随机顺序 ——
+    shuffleBtn.addEventListener('click', () => {
+      filtered = shuffle([...filtered]);
+      shuffleBtn.setAttribute('aria-pressed', 'true');
+      resetAndRender();
+      setTimeout(()=>shuffleBtn.removeAttribute('aria-pressed'), 400);
+    });
+
+    function shuffle(arr){
+      for(let i=arr.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [arr[i],arr[j]]=[arr[j],arr[i]];
+      }
+      return arr;
+    }
+
+    function debounce(fn, wait){
+      let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), wait); };
+    }
+
+    // —— 8) 灯箱 ——
+    function openLightbox(idx){
+      currentIndex = idx;
+      lbImg.src = filtered[currentIndex].src;
+      lightbox.classList.add('open');
+    }
+    function closeLightbox(){ lightbox.classList.remove('open'); lbImg.src=''; }
+    function nav(delta){
+      if(!filtered.length) return;
+      currentIndex = (currentIndex + delta + filtered.length) % filtered.length;
+      lbImg.src = filtered[currentIndex].src;
+    }
+
+    lbPrev.addEventListener('click', ()=>nav(-1));
+    lbNext.addEventListener('click', ()=>nav(1));
+    lbClose.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', e=>{ if(e.target===lightbox) closeLightbox(); });
+    window.addEventListener('keydown', e=>{
+      if(!lightbox.classList.contains('open')) return;
+      if(e.key==='Escape') closeLightbox();
+      if(e.key==='ArrowLeft') nav(-1);
+      if(e.key==='ArrowRight') nav(1);
+    });
+
+    // —— 9) 无限加载（按钮 / 滚动触底）——
+    loadMoreBtn.addEventListener('click', renderNextPage);
+    const io = new IntersectionObserver((ents)=>{
+      ents.forEach(ent=>{
+        if(ent.isIntersecting) renderNextPage();
+      });
+    },{ rootMargin:'800px' });
+    io.observe(loadMoreBtn);
+
+    // —— 10) 首次渲染 ——
+    resetAndRender();
+  </script>
+</body>
+</html>
 
