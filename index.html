@@ -1,249 +1,1011 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>涩图time · Demo Gallery</title>
-  <meta name="description" content="一个纯静态、可直接部署到 GitHub Pages 的图片画廊模板，支持懒加载、灯箱、搜索、筛选与无限加载。" />
-  <style>
-    :root{
-      --bg:#0b0c10; --card:#11131a; --text:#e8eaf0; --muted:#9aa3b2; --accent:#6aa3ff; --ring:#3b82f6;
-      --gap:14px; --radius:16px; --shadow:0 10px 25px rgba(0,0,0,.35);
-    }
-    @media (prefers-color-scheme: light){
-      :root{ --bg:#f6f7fb; --card:#ffffff; --text:#101318; --muted:#687385; --accent:#3b82f6; --ring:#2563eb; }
-    }
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
-    body{ margin:0; background:var(--bg); color:var(--text); font:16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji","Segoe UI Emoji"; }
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>涩图time • 第一期</title>
+    <meta name="color-scheme" content="light dark" />
+    <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
+    <style>
+      :root {
+        --bg: #f6f7fb;
+        --surface: #fff;
+        --text: #1b1e27;
+        --muted: #6b7280;
+        --outline: rgba(20, 22, 30, 0.08);
+        --ring: rgba(255, 85, 85, 0.15);
+        --radius: 14px;
+        --gap: 14px;
+        --accent1: #ff6a6a;
+        --accent2: #ff3d99;
 
-    /* 顶部栏 */
-    .topbar{ position:sticky; top:0; z-index:50; backdrop-filter:saturate(1.3) blur(10px); background:color-mix(in oklab, var(--bg) 82%, transparent); border-bottom:1px solid color-mix(in oklab, var(--text) 15%, transparent); }
-    .topbar-inner{ max-width:1100px; margin:0 auto; padding:14px 18px; display:flex; gap:12px; align-items:center; }
-    .brand{ font-weight:700; letter-spacing:.2px; }
-    .muted{ color:var(--muted); }
-
-    /* 控件 */
-    .controls{ display:flex; flex-wrap:wrap; gap:10px; margin-left:auto; }
-    .input, .btn, .select{ height:40px; border:1px solid color-mix(in oklab, var(--text) 10%, transparent); background:var(--card); color:var(--text); border-radius:12px; padding:0 12px; box-shadow:inset 0 -1px 0 rgba(255,255,255,.03); }
-    .input{ width:220px; }
-    .btn{ display:inline-flex; align-items:center; gap:8px; cursor:pointer; user-select:none; }
-    .btn:hover{ border-color:color-mix(in oklab, var(--text) 20%, transparent); }
-    .btn[aria-pressed="true"]{ outline:2px solid var(--ring); }
-    .select{ padding-right:32px; }
-
-    /* 容器 */
-    .wrap{ max-width:1100px; margin:22px auto; padding:0 18px 70px; }
-
-    /* Masonry 栅格（CSS columns 实现） */
-    .grid{ column-width: 280px; column-gap: var(--gap); }
-    @media (max-width:700px){ .grid{ column-width: 200px; } }
-
-    .card{ break-inside: avoid; margin: 0 0 var(--gap); background:var(--card); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); border:1px solid color-mix(in oklab, var(--text) 8%, transparent); }
-    .thumb{ width:100%; display:block; background: #0a0a0a; aspect-ratio: 4/3; object-fit:cover; }
-    .meta{ display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-top:1px dashed color-mix(in oklab, var(--text) 12%, transparent); font-size:13px; color:var(--muted); }
-    .tag{ padding:2px 8px; border-radius:999px; border:1px solid color-mix(in oklab, var(--text) 16%, transparent); }
-
-    /* 空状态 */
-    .empty{ text-align:center; color:var(--muted); padding:40px 10px; }
-
-    /* 灯箱 */
-    .lightbox{ position:fixed; inset:0; background:rgba(0,0,0,.82); display:none; align-items:center; justify-content:center; z-index:100; }
-    .lightbox.open{ display:flex; }
-    .lightbox img{ max-width: min(92vw, 1400px); max-height: 86vh; border-radius: 10px; box-shadow: var(--shadow); }
-    .lb-actions{ position:fixed; inset:0; display:flex; align-items:center; justify-content:space-between; padding:22px; pointer-events:none; }
-    .lb-btn{ pointer-events:auto; border:none; border-radius:12px; padding:10px 12px; background:rgba(255,255,255,.08); color:#fff; cursor:pointer; }
-    .lb-btn:hover{ background:rgba(255,255,255,.12); }
-    .lb-close{ position:fixed; top:16px; right:16px; }
-
-    /* 页脚 */
-    footer{ color:var(--muted); text-align:center; padding:28px 10px 60px; }
-  </style>
-</head>
-<body>
-  <header class="topbar">
-    <div class="topbar-inner">
-      <div class="brand">涩图time <span class="muted">· Demo</span></div>
-      <div class="controls">
-        <input id="q" class="input" type="search" placeholder="搜索（标题/标签）…" />
-        <select id="filterTag" class="select" aria-label="按标签筛选">
-          <option value="">全部标签</option>
-        </select>
-        <button id="shuffle" class="btn" type="button">随机顺序</button>
-        <button id="loadMore" class="btn" type="button">加载更多</button>
-      </div>
-    </div>
-  </header>
-
-  <main class="wrap">
-    <div id="grid" class="grid" aria-live="polite"></div>
-    <div id="empty" class="empty" hidden>未找到匹配结果</div>
-  </main>
-
-  <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="图片预览">
-    <div class="lb-actions">
-      <button class="lb-btn" id="prev" aria-label="上一张">⟨</button>
-      <button class="lb-btn" id="next" aria-label="下一张">⟩</button>
-    </div>
-    <button class="lb-btn lb-close" id="close" aria-label="关闭">✕</button>
-    <img id="lbImg" alt="预览" />
-  </div>
-
-  <footer>
-    纯静态前端，无后端依赖 · 直接部署到 GitHub Pages 即可
-  </footer>
-
-  <script>
-    // —— 1) 在这里配置你的图片清单（本地 /images 目录或外链都可）——
-    // 字段：src 原图地址；thumb 缩略图（可与 src 相同）；title 标题；tags 标签数组
-    const IMAGES = [
-      // 示例使用 Unsplash 版权友好占位图；上线时替换成你的图片地址
-      { src: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee', thumb: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600', title: 'City Night', tags: ['city','night'] },
-      { src: 'https://images.unsplash.com/photo-1491553895911-0055eca6402d', thumb: 'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=600', title: 'Cosplay', tags: ['people','fashion'] },
-      { src: 'https://images.unsplash.com/photo-1503342217505-b0a15cf70489', thumb: 'https://images.unsplash.com/photo-1503342217505-b0a15cf70489?w=600', title: 'Neon Street', tags: ['city','neon'] },
-      { src: 'https://images.unsplash.com/photo-1520975693416-35a56328bb6f', thumb: 'https://images.unsplash.com/photo-1520975693416-35a56328bb6f?w=600', title: 'Blue Hair', tags: ['portrait'] },
-      { src: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2', thumb: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600', title: 'Portrait', tags: ['portrait','people'] },
-      { src: 'https://images.unsplash.com/photo-1491349174775-aaafddd81942', thumb: 'https://images.unsplash.com/photo-1491349174775-aaafddd81942?w=600', title: 'Anime Vibes', tags: ['art','neon'] },
-      { src: 'https://images.unsplash.com/photo-1506089676908-3592f7389d4d', thumb: 'https://images.unsplash.com/photo-1506089676908-3592f7389d4d?w=600', title: 'Alley', tags: ['city'] },
-      { src: 'https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb', thumb: 'https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?w=600', title: 'Lights', tags: ['city','night'] },
-      { src: 'https://images.unsplash.com/photo-1517841905240-472988babdf9', thumb: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600', title: 'Cat', tags: ['animal'] },
-      { src: 'https://images.unsplash.com/photo-1506084868230-bb9d95c24759', thumb: 'https://images.unsplash.com/photo-1506084868230-bb9d95c24759?w=600', title: 'Streets', tags: ['city'] },
-      // ……继续追加到你的需要
-    ];
-
-    // —— 2) 轻量状态 ——
-    let filtered = [...IMAGES];
-    let page = 0;                // 当前页
-    const pageSize = 18;         // 每次加载数量
-    let currentIndex = -1;       // 灯箱当前索引（在 filtered 里的索引）
-
-    // —— 3) DOM 获取 ——
-    const grid = document.getElementById('grid');
-    const emptyEl = document.getElementById('empty');
-    const q = document.getElementById('q');
-    const filterTag = document.getElementById('filterTag');
-    const loadMoreBtn = document.getElementById('loadMore');
-    const shuffleBtn = document.getElementById('shuffle');
-
-    const lightbox = document.getElementById('lightbox');
-    const lbImg = document.getElementById('lbImg');
-    const lbPrev = document.getElementById('prev');
-    const lbNext = document.getElementById('next');
-    const lbClose = document.getElementById('close');
-
-    // —— 4) 初始化标签筛选选项 ——
-    const allTags = Array.from(new Set(IMAGES.flatMap(i => i.tags || []))).sort();
-    allTags.forEach(t => {
-      const opt = document.createElement('option');
-      opt.value = t; opt.textContent = t; filterTag.appendChild(opt);
-    });
-
-    // —— 5) 渲染一批卡片 ——
-    function renderNextPage(){
-      const start = page * pageSize;
-      const slice = filtered.slice(start, start+pageSize);
-      slice.forEach((item, idx) => {
-        const card = document.createElement('article');
-        card.className = 'card';
-        card.innerHTML = `
-          <img class="thumb" src="${item.thumb || item.src}" loading="lazy" alt="${item.title || 'image'}" />
-          <div class="meta">
-            <span>${item.title || '未命名'}</span>
-            <span class="tag">${(item.tags||[])[0]||'untagged'}</span>
-          </div>`;
-        card.addEventListener('click', () => openLightbox(start+idx));
-        grid.appendChild(card);
-      });
-      page++;
-      updateEmptyState();
-      updateLoadMoreVisibility();
-    }
-
-    function resetAndRender(){
-      grid.innerHTML = ''; page = 0; renderNextPage();
-    }
-
-    function updateEmptyState(){
-      const hasAny = filtered.length > 0;
-      emptyEl.hidden = hasAny; grid.hidden = !hasAny;
-    }
-
-    function updateLoadMoreVisibility(){
-      const more = page * pageSize < filtered.length;
-      loadMoreBtn.style.display = more ? 'inline-flex' : 'none';
-    }
-
-    // —— 6) 搜索 & 筛选 ——
-    function applyFilter(){
-      const kw = q.value.trim().toLowerCase();
-      const tag = filterTag.value;
-      filtered = IMAGES.filter(it => {
-        const byKw = !kw || (it.title||'').toLowerCase().includes(kw) || (it.tags||[]).some(t => t.includes(kw));
-        const byTag = !tag || (it.tags||[]).includes(tag);
-        return byKw && byTag;
-      });
-      resetAndRender();
-    }
-
-    q.addEventListener('input', debounce(applyFilter, 200));
-    filterTag.addEventListener('change', applyFilter);
-
-    // —— 7) 随机顺序 ——
-    shuffleBtn.addEventListener('click', () => {
-      filtered = shuffle([...filtered]);
-      shuffleBtn.setAttribute('aria-pressed', 'true');
-      resetAndRender();
-      setTimeout(()=>shuffleBtn.removeAttribute('aria-pressed'), 400);
-    });
-
-    function shuffle(arr){
-      for(let i=arr.length-1;i>0;i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [arr[i],arr[j]]=[arr[j],arr[i]];
+        /* —— 水印参数 —— */
+        --wm-size: 240px; /* 越小越密 */
+        --wm-rotate: -24deg; /* 倾斜角度 */
+        --wm-opacity: 0.18; /* 0~1 */
+        --wm-bg: none; /* JS 注入 SVG data-url */
       }
-      return arr;
-    }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font: 14px/1.6 system-ui, -apple-system, Segoe UI, Roboto, PingFang SC,
+          Microsoft YaHei, Helvetica, Arial, sans-serif;
+        color: var(--text);
+        background: var(--bg);
+      }
 
-    function debounce(fn, wait){
-      let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), wait); };
-    }
+      /* 顶栏 */
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--outline);
+        background: rgba(250, 250, 252, 0.75);
+        -webkit-backdrop-filter: saturate(1.2) blur(8px);
+        backdrop-filter: saturate(1.2) blur(8px);
+      }
+      .brand {
+        justify-self: center;
+        font-size: clamp(18px, 2.4vw, 28px);
+        line-height: 1.2;
+        font-weight: 800;
+        letter-spacing: 0.2px;
+        white-space: nowrap;
+        color: #2a2f3a;
+        opacity: 0.9;
+      }
+      .spacer {
+        height: 0;
+      }
 
-    // —— 8) 灯箱 ——
-    function openLightbox(idx){
-      currentIndex = idx;
-      lbImg.src = filtered[currentIndex].src;
-      lightbox.classList.add('open');
-    }
-    function closeLightbox(){ lightbox.classList.remove('open'); lbImg.src=''; }
-    function nav(delta){
-      if(!filtered.length) return;
-      currentIndex = (currentIndex + delta + filtered.length) % filtered.length;
-      lbImg.src = filtered[currentIndex].src;
-    }
+      /* 目录按钮 & 抽屉 */
+      .menu-btn {
+        appearance: none;
+        -webkit-appearance: none;
+        cursor: pointer;
+        border: 1px solid var(--outline);
+        background: var(--surface);
+        color: var(--text);
+        border-radius: 10px;
+        padding: 8px 12px;
+        font-weight: 700;
+      }
+      .menu-btn:hover {
+        filter: brightness(1.03);
+      }
+      .menu-btn:focus-visible {
+        outline: 2px solid var(--accent1);
+        outline-offset: 2px;
+      }
 
-    lbPrev.addEventListener('click', ()=>nav(-1));
-    lbNext.addEventListener('click', ()=>nav(1));
-    lbClose.addEventListener('click', closeLightbox);
-    lightbox.addEventListener('click', e=>{ if(e.target===lightbox) closeLightbox(); });
-    window.addEventListener('keydown', e=>{
-      if(!lightbox.classList.contains('open')) return;
-      if(e.key==='Escape') closeLightbox();
-      if(e.key==='ArrowLeft') nav(-1);
-      if(e.key==='ArrowRight') nav(1);
-    });
+      .drawer {
+        position: fixed;
+        inset: 0 auto 0 0;
+        width: min(280px, 86vw);
+        background: var(--surface);
+        border-right: 1px solid var(--outline);
+        transform: translateX(-100%);
+        transition: transform 0.18s ease-out;
+        z-index: 90;
+        padding: 12px 10px 18px;
+        overflow: auto;
+        box-shadow: 6px 0 24px rgba(0, 0, 0, 0.08);
+      }
+      .drawer.open {
+        transform: translateX(0);
+      }
+      .scrim {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.35);
+        z-index: 80;
+      }
+      .scrim[hidden] {
+        display: none;
+      }
+      .nav-header {
+        font-weight: 800;
+        padding: 6px 10px 10px;
+      }
+      .nav-group {
+        margin: 6px 8px;
+      }
+      .nav-group details {
+        border: 1px solid var(--outline);
+        border-radius: 12px;
+        background: var(--surface);
+        overflow: hidden;
+        margin: 8px 0;
+      }
+      .nav-group summary {
+        list-style: none;
+        cursor: pointer;
+        padding: 10px 12px;
+        font-weight: 700;
+      }
+      .nav-group summary::-webkit-details-marker {
+        display: none;
+      }
+      .nav-group ul {
+        margin: 0;
+        padding: 6px 0 10px 0;
+      }
+      .nav-group li {
+        list-style: none;
+      }
+      .nav-group a {
+        display: block;
+        margin: 2px 8px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        color: var(--text);
+        text-decoration: none;
+      }
+      .nav-group a:hover {
+        background: rgba(59, 130, 246, 0.08);
+      }
 
-    // —— 9) 无限加载（按钮 / 滚动触底）——
-    loadMoreBtn.addEventListener('click', renderNextPage);
-    const io = new IntersectionObserver((ents)=>{
-      ents.forEach(ent=>{
-        if(ent.isIntersecting) renderNextPage();
+      /* 容器 */
+      .wrap {
+        width: min(1200px, 100%);
+        margin: 0 auto;
+        padding: 14px clamp(10px, 3vw, 18px) 120px;
+      }
+
+      /* 瀑布流 */
+      .grid {
+        column-width: 300px;
+        column-gap: var(--gap);
+      }
+      @media (max-width: 900px) {
+        .grid {
+          column-width: 240px;
+        }
+      }
+      @media (max-width: 700px) {
+        .grid {
+          column-width: 180px;
+        }
+      }
+
+      .card {
+        display: block;
+        break-inside: avoid;
+        margin: 0 0 var(--gap);
+        border-radius: var(--radius);
+        background: var(--surface);
+        border: 1px solid var(--outline);
+        box-shadow: 0 1px 0 rgba(0, 0, 0, 0.02);
+        overflow: hidden;
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+      }
+      .card:where(:hover, :focus-visible) {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(16, 24, 40, 0.08);
+      }
+
+      .thumb-wrap {
+        position: relative;
+        overflow: hidden;
+      }
+      .thumb {
+        display: block;
+        width: 100%;
+        height: auto;
+        background: #eee;
+        aspect-ratio: 4/3;
+        object-fit: cover;
+      }
+      .meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px;
+        color: var(--muted);
+        font-size: 12px;
+        border-top: 1px solid var(--outline);
+      }
+
+      /* 灯箱 */
+      .lightbox {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.62);
+      }
+      .lightbox.open {
+        display: flex;
+      }
+      .lb-media {
+        max-width: min(96vw, 1280px);
+        max-height: 86vh;
+        border-radius: 12px;
+        background: #000;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+      }
+      .lb-media:is(img, video) {
+        width: auto;
+        height: auto;
+      }
+      .lb-controls {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 3; /* 按钮最高，保证可点 */
+      }
+      .lb-btn {
+        pointer-events: auto;
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        border: 0;
+        padding: 10px 12px;
+        border-radius: 999px;
+        background: #fff;
+        color: #111;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      }
+      .lb-prev,
+      .lb-next {
+        top: 50%;
+        transform: translateY(-50%);
+        width: 44px;
+        height: 44px;
+        border-radius: 999px;
+        padding: 0;
+        display: grid;
+        place-items: center;
+        font-weight: 800;
+      }
+      .lb-prev {
+        left: 16px;
+        right: auto;
+      }
+      .lb-next {
+        right: 16px;
+        left: auto;
+      }
+      .lb-close {
+        top: 16px;
+        right: 16px;
+      }
+
+      /* —— 全站水印 —— */
+      /* 缩略图覆盖 */
+      .thumb-wrap::after {
+        content: "";
+        position: absolute;
+        inset: -20%;
+        background-image: var(--wm-bg);
+        background-repeat: repeat;
+        background-size: var(--wm-size) var(--wm-size);
+        transform: rotate(var(--wm-rotate));
+        opacity: var(--wm-opacity);
+        pointer-events: none;
+        z-index: 1;
+      }
+      /* 灯箱：包裹层覆盖（最稳） */
+      .lb-wrap {
+        position: relative;
+        display: inline-block;
+      }
+      .lb-wrap .lb-media {
+        display: block;
+        border-radius: 12px;
+        position: relative;
+        z-index: 1;
+      }
+      .lb-wrap .wm-overlay {
+        position: absolute;
+        inset: -6%;
+        background-image: var(--wm-bg);
+        background-repeat: repeat;
+        background-size: var(--wm-size) var(--wm-size);
+        transform: rotate(var(--wm-rotate));
+        opacity: var(--wm-opacity);
+        pointer-events: none;
+        border-radius: 12px;
+        z-index: 2;
+      }
+
+      /* 右下角悬浮按钮 */
+      .fab {
+        position: fixed;
+        right: 16px;
+        bottom: calc(16px + env(safe-area-inset-bottom));
+        z-index: 30;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px 18px;
+        border-radius: 999px;
+        gap: 8px;
+        text-decoration: none;
+        color: #fff;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--accent1), var(--accent2));
+        box-shadow: 0 12px 30px rgba(255, 82, 120, 0.35);
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
+        font-size: clamp(14px, 2vw, 18px);
+      }
+      .fab:where(:hover, :focus-visible) {
+        transform: translateY(-1px);
+        box-shadow: 0 16px 40px rgba(255, 82, 120, 0.45);
+      }
+
+      /* 下载卡片 */
+      .download-card {
+        width: min(760px, 92%);
+        margin: 40px auto 16px;
+        padding: 22px 24px;
+        border-radius: 20px;
+        background: var(--surface);
+        border: 1px solid var(--outline);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+        text-align: center;
+      }
+      .download-card h3 {
+        margin: 0 0 8px;
+        font-size: 20px;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--accent1), var(--accent2));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .download-card p {
+        margin: 0 0 14px;
+        color: var(--muted);
+      }
+      .download-btn {
+        display: inline-block;
+        padding: 10px 16px;
+        border-radius: 999px;
+        color: #fff;
+        text-decoration: none;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--accent1), var(--accent2));
+        box-shadow: 0 10px 24px rgba(255, 82, 120, 0.3);
+      }
+
+      /* 底部按钮 */
+      .bottom-cta {
+        width: min(760px, 92%);
+        margin: 26px auto 40px;
+        text-align: center;
+      }
+      .bottom-cta .cta-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px 26px;
+        border-radius: 9999px;
+        text-decoration: none;
+        font-weight: 700;
+        color: #fff;
+        background: linear-gradient(135deg, #60a5fa, #3b82f6);
+        box-shadow: 0 10px 24px rgba(59, 130, 246, 0.25);
+        transition: transform 0.12s ease, box-shadow 0.12s ease,
+          filter 0.12s ease;
+        font-size: clamp(16px, 2.2vw, 20px);
+      }
+      .bottom-cta .cta-btn:hover {
+        filter: brightness(1.05);
+        box-shadow: 0 12px 28px rgba(59, 130, 246, 0.35);
+      }
+      .bottom-cta .cta-btn:active {
+        transform: translateY(1px);
+      }
+
+      /* 兼容性回退 */
+      @supports not (
+        (backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px))
+      ) {
+        .topbar {
+          background: #fafafc;
+        }
+      }
+
+      /* --- 访问密码 Gate --- */
+      [data-locked="1"] header,
+      [data-locked="1"] #main,
+      [data-locked="1"] .fab {
+        display: none !important;
+      }
+      .gate {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: radial-gradient(
+          120% 120% at 50% 0%,
+          rgba(0, 0, 0, 0.25),
+          rgba(0, 0, 0, 0.45)
+        );
+        backdrop-filter: blur(6px);
+      }
+      .gate[hidden] {
+        display: none;
+      }
+      .gate-card {
+        width: min(420px, 92%);
+        background: var(--surface);
+        border: 1px solid var(--outline);
+        border-radius: 16px;
+        padding: 22px 20px 18px;
+        text-align: center;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+      }
+      .gate-card h1 {
+        margin: 0 0 8px;
+        font-size: 20px;
+        font-weight: 800;
+      }
+      .gate-card p {
+        margin: 0 0 14px;
+        color: var(--muted);
+      }
+      .gate-input {
+        width: 100%;
+        height: 40px;
+        border-radius: 10px;
+        border: 1px solid var(--outline);
+        padding: 0 12px;
+        font: inherit;
+      }
+      .gate-actions {
+        margin-top: 12px;
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+      .btn-solid {
+        padding: 10px 16px;
+        border-radius: 999px;
+        border: 0;
+        cursor: pointer;
+        color: #fff;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--accent1), var(--accent2));
+        box-shadow: 0 10px 24px rgba(255, 82, 120, 0.3);
+      }
+      .gate-msg {
+        min-height: 20px;
+        margin-top: 8px;
+        color: #c1121f;
+        font-weight: 700;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .card,
+        .fab,
+        .bottom-cta .cta-btn {
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body data-locked="1">
+    <!-- 访问密码 Gate -->
+    <div
+      id="gate"
+      class="gate"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="gateTitle"
+    >
+      <form id="gateForm" class="gate-card">
+        <h1 id="gateTitle">请输入访问密码</h1>
+        <p>每次进入都需验证</p>
+        <input
+          id="gatePwd"
+          class="gate-input"
+          type="password"
+          placeholder="密码"
+          autocomplete="current-password"
+        />
+        <div class="gate-actions">
+          <button type="submit" class="btn-solid">进入</button>
+        </div>
+        <div id="gateMsg" class="gate-msg" aria-live="polite"></div>
+      </form>
+    </div>
+
+    <header class="topbar" role="banner">
+      <button
+        class="menu-btn"
+        id="menuBtn"
+        aria-expanded="false"
+        aria-controls="menuDrawer"
+      >
+        目录
+      </button>
+      <div class="brand">涩图time • 第一期</div>
+      <div class="spacer"></div>
+    </header>
+
+    <!-- 左侧目录抽屉 -->
+    <aside id="menuDrawer" class="drawer" aria-label="站点目录" tabindex="-1">
+      <div class="nav-header">目录</div>
+      <nav class="nav-group" id="menuList"></nav>
+    </aside>
+    <div id="scrim" class="scrim" hidden></div>
+
+    <main id="main" class="wrap">
+      <section id="grid" class="grid" aria-live="polite"></section>
+      <div id="io-sentinel" style="height: 1px"></div>
+
+      <!-- 底部下载卡片 -->
+      <section class="download-card" aria-label="下载原图">
+        <h3>本期无水印原图</h3>
+        <p>保存到自己的网盘防止和谐</p>
+        <a
+          class="download-btn"
+          href="https://example.com/download"
+          target="_blank"
+          rel="noopener"
+          >点击下载</a
+        >
+      </section>
+
+      <!-- 页面底部按钮（与右下角悬浮按钮同链） -->
+      <section class="bottom-cta" aria-label="添加好友获取更新">
+        <a
+          id="btn-bottom-cta"
+          class="cta-btn"
+          href="#"
+          target="_blank"
+          rel="noopener"
+          >点击按钮添加QQ：38190187</a
+        >
+      </section>
+    </main>
+
+    <!-- 右下角悬浮按钮 -->
+    <a
+      class="fab"
+      href="tencent://AddContact/?fromId=45&fromSubId=1&subcmd=all&uin=38190187&website=www.oicqzone.com"
+      target="_blank"
+      rel="noopener"
+      aria-label="添加QQ"
+      >点击按钮添加qq：38190187</a
+    >
+
+    <!-- 灯箱 -->
+    <aside
+      class="lightbox"
+      id="lightbox"
+      role="dialog"
+      aria-modal="true"
+      aria-label="媒体预览"
+    >
+      <div class="lb-controls" aria-hidden="true">
+        <button class="lb-btn lb-prev" aria-label="上一张" id="lbPrev">
+          ‹
+        </button>
+        <button class="lb-btn lb-next" aria-label="下一张" id="lbNext">
+          ›
+        </button>
+        <button class="lb-btn lb-close" aria-label="关闭预览" id="lbClose">
+          关闭
+        </button>
+      </div>
+    </aside>
+
+    <script>
+      /** 媒体清单 */
+      const MEDIA = [
+        {
+          type: "image",
+          src: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+          thumb:
+            "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&auto=format&fit=crop&q=80",
+          title: "City Night",
+        },
+        {
+          type: "image",
+          src: "https://images.unsplash.com/photo-1491349174775-aaafddd81942",
+          thumb:
+            "https://images.unsplash.com/photo-1491349174775-aaafddd81942?w=800&auto=format&fit=crop&q=80",
+          title: "Anime Vibes",
+        },
+        {
+          type: "image",
+          src: "https://images.unsplash.com/photo-1544005313-94ddf0286df2",
+          thumb:
+            "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&auto=format&fit=crop&q=80",
+          title: "Portrait",
+        },
+        {
+          type: "image",
+          src: "https://images.unsplash.com/photo-1517841905240-472988babdf9",
+          thumb:
+            "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=800&auto=format&fit=crop&q=80",
+          title: "Cat",
+        },
+      ];
+
+      /* 左侧目录 */
+      const NAV = [
+        {
+          title: "往期",
+          items: [
+            { label: "第 01 期", href: "./index.html" },
+            { label: "第 02 期", href: "./setu/2/" },
+            { label: "第 03 期", href: "./setu/3/" },
+          ],
+        },
+        {
+          title: "快捷入口",
+          items: [
+            { label: "无水印原图", href: "https://example.com/download" },
+            {
+              label: "添加作者 QQ",
+              href: document.querySelector(".fab")
+                ? document.querySelector(".fab").href
+                : "#",
+            },
+          ],
+        },
+      ];
+
+      /* ------- 变量 ------- */
+      const grid = document.getElementById("grid");
+      const lightbox = document.getElementById("lightbox");
+      const lbPrev = document.getElementById("lbPrev");
+      const lbNext = document.getElementById("lbNext");
+      const lbClose = document.getElementById("lbClose");
+      const sentinel = document.getElementById("io-sentinel");
+      const mainEl = document.getElementById("main");
+
+      let page = 0;
+      const pageSize = 18;
+      let filtered = MEDIA.slice();
+      let isLoading = false;
+      let currentIndex = 0;
+      let prevFocus = null;
+
+      /* ------- 渲染一个分页 ------- */
+      function renderNextPage() {
+        if (isLoading) return;
+        isLoading = true;
+        const start = page * pageSize;
+        const list = filtered.slice(start, start + pageSize);
+
+        list.forEach((item, idx) => {
+          const card = document.createElement("article");
+          card.className = "card";
+          card.dataset.type = item.type || "image";
+
+          let mediaEl = "";
+          if (item.type === "video") {
+            mediaEl = `
+        <div class="thumb-wrap">
+          <video class="thumb" preload="metadata" playsinline muted poster="${
+            item.poster || ""
+          }">
+            ${(item.sources || [])
+              .map((s) => `<source data-src="${s.src}" type="${s.type || ""}">`)
+              .join("")}
+          </video>
+        </div>`;
+          } else {
+            mediaEl = `
+        <div class="thumb-wrap">
+          <img class="thumb" src="${
+            item.thumb || item.src
+          }" loading="lazy" decoding="async" alt="${item.title || "媒体预览"}">
+        </div>`;
+          }
+
+          card.innerHTML = `
+      ${mediaEl}
+      <div class="meta">
+        <span>${item.title || "未命名"}</span>
+        <span>${item.type === "video" ? "视频" : "图片"}</span>
+      </div>`;
+
+          card.addEventListener("click", () => openLightbox(start + idx), {
+            passive: true,
+          });
+          grid.appendChild(card);
+        });
+
+        page++;
+        isLoading = false;
+
+        grid.querySelectorAll("video.thumb").forEach((v) => ioVideo.observe(v));
+
+        if (page * pageSize >= filtered.length) {
+          try {
+            io.unobserve(sentinel);
+          } catch {}
+        }
+      }
+
+      /* ------- 无限滚动触发 ------- */
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((ent) => {
+            if (ent.isIntersecting) renderNextPage();
+          });
+        },
+        { rootMargin: "1000px 0px" }
+      );
+      io.observe(sentinel);
+
+      /* ------- 视频懒加载 ------- */
+      const ioVideo = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((ent) => {
+            if (!ent.isIntersecting) return;
+            const v = ent.target;
+            const sources = v.querySelectorAll("source[data-src]");
+            sources.forEach((s) => {
+              s.src = s.dataset.src;
+              s.removeAttribute("data-src");
+            });
+            v.load();
+            ioVideo.unobserve(v);
+          });
+        },
+        { rootMargin: "600px" }
+      );
+
+      /* ------- 灯箱 ------- */
+      function openLightbox(idx) {
+        if (idx < 0 || idx >= filtered.length) return;
+        currentIndex = idx;
+
+        // 删旧包裹层，避免残留
+        const oldWrap = lightbox.querySelector(".lb-wrap");
+        if (oldWrap) oldWrap.remove();
+
+        const it = filtered[currentIndex];
+        let el;
+        if (it.type === "video") {
+          el = document.createElement("video");
+          el.className = "lb-media";
+          el.setAttribute("controls", "");
+          el.setAttribute("autoplay", "");
+          el.setAttribute("playsinline", "");
+          if (it.poster) el.setAttribute("poster", it.poster);
+          (it.sources || []).forEach((s) => {
+            const so = document.createElement("source");
+            so.src = s.src;
+            if (s.type) so.type = s.type;
+            el.appendChild(so);
+          });
+          el.setAttribute("aria-label", it.title || "视频预览");
+        } else {
+          el = document.createElement("img");
+          el.className = "lb-media";
+          el.alt = it.title || "图片预览";
+          el.src = it.src;
+        }
+
+        // 包裹层 + 覆盖水印
+        const wrap = document.createElement("div");
+        wrap.className = "lb-wrap";
+        wrap.appendChild(el);
+        const ov = document.createElement("div");
+        ov.className = "wm-overlay";
+        wrap.appendChild(ov);
+
+        lbClose.insertAdjacentElement("afterend", wrap);
+
+        lightbox.classList.add("open");
+        prevFocus = document.activeElement;
+        document.body.style.overflow = "hidden";
+        mainEl.setAttribute("aria-hidden", "true");
+        try {
+          mainEl.setAttribute("inert", "");
+        } catch {}
+        lbClose.focus();
+      }
+      function closeLightbox() {
+        lightbox.classList.remove("open");
+        const v = lightbox.querySelector("video.lb-media");
+        if (v) {
+          v.pause();
+          v.currentTime = 0;
+        }
+        document.body.style.overflow = "";
+        mainEl.removeAttribute("aria-hidden");
+        try {
+          mainEl.removeAttribute("inert");
+        } catch {}
+        if (prevFocus && prevFocus.focus) prevFocus.focus();
+      }
+      function nav(delta) {
+        if (!filtered.length) return;
+        currentIndex =
+          (currentIndex + delta + filtered.length) % filtered.length;
+        openLightbox(currentIndex);
+      }
+      lbClose.addEventListener("click", closeLightbox);
+      lbPrev.addEventListener("click", () => nav(-1));
+      lbNext.addEventListener("click", () => nav(1));
+      lightbox.addEventListener(
+        "click",
+        (e) => {
+          if (e.target === lightbox) closeLightbox();
+        },
+        { passive: true }
+      );
+      window.addEventListener("keydown", (e) => {
+        if (!lightbox.classList.contains("open")) return;
+        if (e.key === "Escape") closeLightbox();
+        if (e.key === "ArrowLeft") nav(-1);
+        if (e.key === "ArrowRight") nav(1);
       });
-    },{ rootMargin:'800px' });
-    io.observe(loadMoreBtn);
 
-    // —— 10) 首次渲染 ——
-    resetAndRender();
-  </script>
-</body>
+      /* ------- 渲染目录 ------- */
+      function renderNav() {
+        const root = document.getElementById("menuList");
+        if (!root) return;
+        root.innerHTML = "";
+        NAV.forEach((sec) => {
+          const d = document.createElement("details");
+          const s = document.createElement("summary");
+          s.textContent = sec.title;
+          d.appendChild(s);
+          const ul = document.createElement("ul");
+          (sec.items || []).forEach((it) => {
+            const li = document.createElement("li");
+            const a = document.createElement("a");
+            a.textContent = it.label;
+            a.href = it.href;
+            a.target = "_blank";
+            a.rel = "noopener";
+            li.appendChild(a);
+            ul.appendChild(li);
+          });
+          d.appendChild(ul);
+          root.appendChild(d);
+        });
+      }
+      renderNav();
+
+      /* ------- 目录抽屉开关 ------- */
+      const menuBtn = document.getElementById("menuBtn");
+      const drawer = document.getElementById("menuDrawer");
+      const scrim = document.getElementById("scrim");
+      let lastFocus = null;
+      function openDrawer() {
+        drawer.classList.add("open");
+        scrim.hidden = false;
+        menuBtn.setAttribute("aria-expanded", "true");
+        lastFocus = document.activeElement;
+        document.body.style.overflow = "hidden";
+        const firstLink = drawer.querySelector("a");
+        if (firstLink) firstLink.focus();
+      }
+      function closeDrawer() {
+        drawer.classList.remove("open");
+        scrim.hidden = true;
+        menuBtn.setAttribute("aria-expanded", "false");
+        document.body.style.overflow = "";
+        if (lastFocus && lastFocus.focus) lastFocus.focus();
+      }
+      menuBtn.addEventListener("click", () =>
+        drawer.classList.contains("open") ? closeDrawer() : openDrawer()
+      );
+      scrim.addEventListener("click", closeDrawer);
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && drawer.classList.contains("open"))
+          closeDrawer();
+      });
+      drawer.addEventListener("click", (e) => {
+        if (e.target.tagName.toLowerCase() === "a") closeDrawer();
+      });
+
+      /* —— 同步底部按钮与右下角悬浮按钮链接 —— */
+      (function syncBottomBtnHref() {
+        var fab = document.querySelector(".fab");
+        var bottomBtn = document.getElementById("btn-bottom-cta");
+        if (fab && bottomBtn) bottomBtn.href = fab.href;
+      })();
+
+      /* ======== 密码 Gate（每次输入；支持哈希/明文兜底） ======== */
+      const GATE = {
+        salt: "st-time-v1",
+        hash: "946174e4dfa66e0471d5a5fa8d134975784e1ce759c9faf421b5559464be8f63", // sha256('1234'+salt)
+        remember: false, // 保持每次都输入
+        ttlHours: 24,
+        storageKey: "gate_v1_token",
+        plain: "1234", // WebCrypto 不可用时的兜底
+      };
+      async function sha256Hex(str) {
+        if (window.crypto && crypto.subtle) {
+          try {
+            const buf = await crypto.subtle.digest(
+              "SHA-256",
+              new TextEncoder().encode(str)
+            );
+            return [...new Uint8Array(buf)]
+              .map((b) => b.toString(16).padStart(2, "0"))
+              .join("");
+          } catch (e) {}
+        }
+        return null; // 本地 file:// 或老浏览器会走兜底
+      }
+      window._gateHash = async (pwd) =>
+        console.log(await sha256Hex(pwd + GATE.salt)); // 控制台工具
+
+      const gateEl = document.getElementById("gate");
+      const gateForm = document.getElementById("gateForm");
+      const gatePwd = document.getElementById("gatePwd");
+      const gateMsg = document.getElementById("gateMsg");
+
+      function unlockUI(silent) {
+        gateEl.hidden = true;
+        document.body.removeAttribute("data-locked");
+        if (!silent) gateMsg.textContent = "";
+        if (!window.__booted) {
+          window.__booted = true;
+          renderNextPage();
+        }
+      }
+      (function gateInit() {
+        gateEl.hidden = false;
+        setTimeout(() => gatePwd.focus(), 0);
+      })();
+      gateForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        gateMsg.textContent = "";
+        const input = (gatePwd.value || "").trim();
+        if (!input) {
+          gateMsg.textContent = "请输入密码";
+          gatePwd.focus();
+          return;
+        }
+        const h = await sha256Hex(input + GATE.salt);
+        const ok =
+          (h && GATE.hash && h === GATE.hash) ||
+          (!h && GATE.plain && input === GATE.plain);
+        if (ok) {
+          unlockUI(false);
+        } else {
+          gateMsg.textContent = "密码不正确";
+          gatePwd.select();
+        }
+      });
+
+      /* —— 生成 SVG 水印，写入 CSS 变量 --wm-bg（全站生效） —— */
+      const WM_TEXT = "qq:38190187"; // ← 改成你的水印文字
+      const WM_SIZE = 240;
+      const WM_COLOR = "#FFFFFF";
+      (function setGlobalWatermark() {
+        const svg = `
+<svg xmlns="http://www.w3.org/2000/svg" width="${WM_SIZE}" height="${WM_SIZE}" viewBox="0 0 ${WM_SIZE} ${WM_SIZE}">
+  <style>text{ font:700 18px system-ui,-apple-system,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',Arial; }</style>
+  <text x="16" y="${WM_SIZE / 2}" fill="${WM_COLOR}">${WM_TEXT}</text>
+</svg>`;
+        const url = `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
+        document.documentElement.style.setProperty("--wm-bg", url);
+      })();
+    </script>
+  </body>
 </html>
-
