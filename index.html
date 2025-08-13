@@ -486,7 +486,7 @@
           href="#"
           target="_blank"
           rel="noopener"
-          >点击按钮添加QQ：936618678</a
+          >点击按钮添加QQ群：936618678</a
         >
       </section>
     </main>
@@ -503,8 +503,6 @@
 
     <script>
       // 额外媒体：外链图片（会显示在所有自动发现的文件之前）
-      // // 额外媒体：外链资源（会排在最前面）
-      // 之前如果有外链图片等，保留它们
       const EXTRA_MEDIA = [
         {
           type: "image",
@@ -513,11 +511,11 @@
         },
         {
           type: "video",
-          title: "外链视频",
-          poster: "", // 可填封面图URL；没有就留空
+          title: "perfectMoment_9213399812739042060.mp4",
+          poster: "", // 有封面可填URL；没有留空
           sources: [
-            { src: "https://tntfiles.com/icdeppyhhb", type: "" },
-            // 如果你确定是 MP4，可写成 type: "video/mp4"
+            { src: "https://tntfiles.com/icdeppyhhb", type: "video/mp4" },
+            // 如果后端不是 mp4，可以把 type 改成对应的 mime；留空也能播放，大多数浏览器可自动识别
           ],
         },
       ];
