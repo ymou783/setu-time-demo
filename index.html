@@ -503,20 +503,62 @@
 
     <script>
       // 额外媒体：外链图片（会显示在所有自动发现的文件之前）
+      // 额外媒体（外链图片）—— 会排在自动扫描出来的文件之前
       const EXTRA_MEDIA = [
         {
           type: "image",
-          src: "https://p.sda1.dev/26/8618f590502d308c0dec17704c57134d/1717983086_new__6.jpg",
-          title: "外链图片",
+          src: "https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAJ_wGicmiBfoyH9NeCDYY-xE2gohOHsAAJHGAACSijoVE8iMWm9w4AuNgQ.jpg",
+          title: "绅士群934893858 (1).jpg",
         },
         {
-          type: "video",
-          title: "perfectMoment_9213399812739042060.mp4",
-          poster: "", // 有封面可填URL；没有留空
-          sources: [
-            { src: "https://tntfiles.com/icdeppyhhb", type: "video/mp4" },
-            // 如果后端不是 mp4，可以把 type 改成对应的 mime；留空也能播放，大多数浏览器可自动识别
-          ],
+          type: "image",
+          src: "https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAJ_wWicmuhMQitF5x2YwtZwzozqhtJ_AAJIGAACSijoVBB38GyaenAgNgQ.jpg",
+          title: "0nchxncwvsk4886020.jpg",
+        },
+        {
+          type: "image",
+          src: "https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAJ_w2icmwT1eiEMV7y0ukqZuN1JGWR7AAJKGAACSijoVJSLBJ9m0EnJNgQ.jpg",
+          title: "3fj3rijbh0t4885520.jpg",
+        },
+        {
+          type: "image",
+          src: "https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAJ_xGicmwSs2xSvPx-dWpxk8ezSmZ-BAAJLGAACSijoVKJYg1O-v8LYNgQ.jpg",
+          title: "2vp2qu24fig4885720.jpg",
+        },
+        {
+          type: "image",
+          src: "https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAJ_wmicmwPyuRLMPGlLbWDxdOVZ8iMbAAJJGAACSijoVHpsmZRFiZb3NgQ.jpg",
+          title: "4jmjlqoeusu4884520.jpg",
+        },
+        {
+          type: "image",
+          src: "https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAJ_yGicm2Xx9hqBmY3mr080tknrmJSsAAJPGAACSijoVFXEdlqXDO_DNgQ.jpg",
+          title: "l4adqg1mxml4885020.jpg",
+        },
+        {
+          type: "image",
+          src: "https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAJ_ymicm2kPiVJxH9Vizn-oz4NJ6praAAJRGAACSijoVKRP1AABRC3LdDYE.jpg",
+          title: "m1zgp3bv4bm4884620.jpg",
+        },
+        {
+          type: "image",
+          src: "https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAJ_xmicm2NSChfxspT9NzSQztmJdYEkAAJNGAACSijoVFKgfPXIk7daNgQ.jpg",
+          title: "pmkuexl1tdo4884219.jpg",
+        },
+        {
+          type: "image",
+          src: "https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAJ_y2icm2pvi--j2ALx5itVci8RcHNmAAJSGAACSijoVNcu5Y6d01ZHNgQ.jpg",
+          title: "ubpocl5vfo04885420.jpg",
+        },
+        {
+          type: "image",
+          src: "https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAJ_zGicm2reqSOyCjYKjYplEqNDAjGbAAJTGAACSijoVBum8avFweBnNgQ.jpg",
+          title: "xalietbmghp4885120.jpg",
+        },
+        {
+          type: "image",
+          src: "https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAJ_xWicm2In8DzJepYoUlRVa7DEMewbAAJMGAACSijoVLmMavyl-6wbNgQ.jpg",
+          title: "zlyvwnjtjer4885820.jpg",
         },
       ];
 
@@ -836,7 +878,7 @@
         remember: false,
         ttlHours: 24,
         storageKey: "gate_v1_token",
-        plain: "1234",
+        plain: "38190187",
       };
       async function sha256Hex(str) {
         if (window.crypto && crypto.subtle) {
