@@ -147,6 +147,8 @@
         margin: 0 auto;
         padding: 14px clamp(10px, 3vw, 18px) 120px;
       }
+
+      /* 标题下自定义文本框 */
       .custom-text {
         width: min(1200px, 100%);
         margin: 16px auto 0;
@@ -162,6 +164,8 @@
       .custom-text p {
         margin: 0;
       }
+
+      /* 单列布局，每行一个媒体 */
       .grid {
         display: flex;
         flex-direction: column;
@@ -205,95 +209,8 @@
         font-size: 12px;
         border-top: 1px solid var(--outline);
       }
-      .lightbox {
-        position: fixed;
-        inset: 0;
-        z-index: 1000;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0, 0, 0, 0.62);
-      }
-      .lightbox.open {
-        display: flex;
-      }
-      .lb-media {
-        max-width: min(96vw, 1280px);
-        max-height: 86vh;
-        border-radius: 12px;
-        background: #000;
-        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
-        position: relative;
-        z-index: 1;
-      }
-      .lb-media:is(img, video) {
-        width: auto;
-        height: auto;
-      }
-      .lb-wrap {
-        position: relative;
-        display: inline-block;
-        z-index: 1001;
-      }
-      .lb-wrap .wm-overlay {
-        position: absolute;
-        inset: -6%;
-        background-image: var(--wm-bg);
-        background-repeat: repeat;
-        background-size: var(--wm-size) var(--wm-size);
-        transform: rotate(var(--wm-rotate));
-        opacity: var(--wm-opacity);
-        pointer-events: none;
-        border-radius: 12px;
-        z-index: 1002;
-      }
-      .lb-controls {
-        position: fixed;
-        inset: 0;
-        pointer-events: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 99999 !important;
-      }
-      .lb-btn {
-        pointer-events: auto;
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        border: 0;
-        padding: 10px 12px;
-        border-radius: 999px;
-        background: #fff;
-        color: #111;
-        font-weight: 600;
-        cursor: pointer;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-      }
-      .lb-prev,
-      .lb-next {
-        top: 50%;
-        transform: translateY(-50%);
-        width: 44px;
-        height: 44px;
-        border-radius: 999px;
-        padding: 0;
-        display: grid;
-        place-items: center;
-        font-weight: 800;
-      }
-      .lb-prev {
-        left: 16px;
-        right: auto;
-      }
-      .lb-next {
-        right: 16px;
-        left: auto;
-      }
-      .lb-close {
-        top: 16px;
-        right: 16px;
-      }
+
+      /* 水印叠加（仅缩略图层） */
       .thumb-wrap::after {
         content: "";
         position: absolute;
@@ -306,6 +223,8 @@
         pointer-events: none;
         z-index: 1;
       }
+
+      /* 右下角悬浮按钮等 */
       .fab {
         position: fixed;
         right: 16px;
@@ -329,6 +248,7 @@
         transform: translateY(-1px);
         box-shadow: 0 16px 40px rgba(255, 82, 120, 0.45);
       }
+
       .download-card {
         width: min(760px, 92%);
         margin: 40px auto 16px;
@@ -362,6 +282,7 @@
         background: linear-gradient(135deg, var(--accent1), var(--accent2));
         box-shadow: 0 10px 24px rgba(255, 82, 120, 0.3);
       }
+
       .bottom-cta {
         width: min(760px, 92%);
         margin: 26px auto 40px;
@@ -389,6 +310,7 @@
       .bottom-cta .cta-btn:active {
         transform: translateY(1px);
       }
+
       @supports not (
         (backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px))
       ) {
@@ -396,6 +318,8 @@
           background: #fafafc;
         }
       }
+
+      /* Gate（有密码时隐藏主体） */
       [data-locked="1"] header,
       [data-locked="1"] #main,
       [data-locked="1"] .fab {
@@ -467,6 +391,7 @@
         color: #c1121f;
         font-weight: 700;
       }
+
       @media (prefers-reduced-motion: reduce) {
         .card,
         .fab,
@@ -521,7 +446,7 @@
       <div class="spacer"></div>
     </header>
 
-    <!-- 自定义文本框（标题下、媒体上） -->
+    <!-- 标题下、媒体上 自定义文本框 -->
     <div class="custom-text">
       <p>
         这里是可自定义的公告/介绍文本。你可以写期刊说明、更新日志、观看提示等内容。
@@ -576,29 +501,8 @@
       >点击按钮添加qq：38190187</a
     >
 
-    <!-- 灯箱 -->
-    <aside
-      class="lightbox"
-      id="lightbox"
-      role="dialog"
-      aria-modal="true"
-      aria-label="媒体预览"
-    >
-      <div class="lb-controls" aria-hidden="true">
-        <button class="lb-btn lb-prev" aria-label="上一张" id="lbPrev">
-          ‹
-        </button>
-        <button class="lb-btn lb-next" aria-label="下一张" id="lbNext">
-          ›
-        </button>
-        <button class="lb-btn lb-close" aria-label="关闭预览" id="lbClose">
-          关闭
-        </button>
-      </div>
-    </aside>
-
     <script>
-      /* ========= 媒体自动发现：优先 GitHub Pages，其次解析 /image/ 目录索引 ========= */
+      /* ========= 自动发现 image/ 下文件：优先 GitHub Pages，其次目录索引 ========= */
       const IMAGE_EXT = [
         ".jpg",
         ".jpeg",
@@ -633,7 +537,6 @@
       };
 
       async function listViaGitHubAPI() {
-        // 自动推断 owner / repo / branch（main优先）
         const host = location.hostname;
         let owner = null,
           repo = null,
@@ -643,7 +546,7 @@
           const seg = location.pathname.split("/").filter(Boolean);
           repo = seg[0] || `${owner}.github.io`;
         }
-        if (!owner || !repo) return null; // 无法推断，放弃 GitHub API
+        if (!owner || !repo) return null;
 
         async function fetchDir(ref) {
           const url = `https://api.github.com/repos/${owner}/${repo}/contents/image?ref=${encodeURIComponent(
@@ -664,14 +567,13 @@
 
         const list = res.items?.filter((x) => x.type === "file") || [];
         return list.map((x) => ({
-          path: x.path, // 'image/xxx.ext'
-          url: x.download_url, // raw 内容直链
+          path: x.path,
+          url: x.download_url,
           name: x.name,
         }));
       }
 
       async function listViaDirectoryIndex() {
-        // 尝试拉取 /image/ 并解析 <a href="xxx"> 链接（需要服务器开启目录索引）
         try {
           const r = await fetch("image/", { mode: "cors" });
           if (!r.ok) return null;
@@ -692,9 +594,7 @@
       async function discoverMedia() {
         let entries = await listViaGitHubAPI();
         if (!entries) entries = await listViaDirectoryIndex();
-        if (!entries) entries = []; // 最差情况：空
-
-        // 将文件映射为页面使用的 MEDIA 结构
+        if (!entries) entries = [];
         const media = [];
         for (const e of entries.sort((a, b) =>
           a.name.localeCompare(b.name, "zh-Hans-CN")
@@ -713,7 +613,7 @@
         return media;
       }
 
-      /* ================== 页面其余逻辑（与你的原版一致/已修复） ================== */
+      /* ============== 渲染（无灯箱；视频就地播放） ============== */
       const NAV = [
         {
           title: "往期",
@@ -733,21 +633,15 @@
       ];
 
       const grid = document.getElementById("grid");
-      const lightbox = document.getElementById("lightbox");
-      const lbPrev = document.getElementById("lbPrev");
-      const lbNext = document.getElementById("lbNext");
-      const lbClose = document.getElementById("lbClose");
       const sentinel = document.getElementById("io-sentinel");
-      const mainEl = document.getElementById("main");
       const statusEl = document.getElementById("status");
+      const mainEl = document.getElementById("main");
 
       let page = 0;
       const pageSize = 18;
-      let MEDIA = []; // 自动发现后写入
-      let filtered = []; // = MEDIA.slice()
+      let MEDIA = [];
+      let filtered = [];
       let isLoading = false;
-      let currentIndex = 0;
-      let prevFocus = null;
 
       function getThumbSrc(item) {
         if (item.thumb) return item.thumb;
@@ -759,50 +653,60 @@
         isLoading = true;
         const start = page * pageSize;
         const list = filtered.slice(start, start + pageSize);
-        list.forEach((item, idx) => {
+
+        list.forEach((item) => {
           const card = document.createElement("article");
           card.className = "card";
           card.dataset.type = item.type || "image";
-          let mediaEl = "";
+
           if (item.type === "video") {
-            mediaEl = `
-              <div class="thumb-wrap">
-                <video class="thumb" preload="metadata" playsinline muted poster="${
-                  item.poster || ""
-                }">
-                  ${(item.sources || [])
-                    .map(
-                      (s) =>
-                        `<source data-src="${s.src}" type="${s.type || ""}">`
-                    )
-                    .join("")}
-                </video>
-              </div>`;
+            // 视频：原地播放（移动端友好）
+            const wrap = document.createElement("div");
+            wrap.className = "thumb-wrap";
+            const v = document.createElement("video");
+            v.className = "thumb";
+            v.setAttribute("preload", "metadata");
+            v.setAttribute("playsinline", ""); // iOS 内联播放
+            v.setAttribute("webkit-playsinline", ""); // 旧版 iOS
+            v.setAttribute("controls", ""); // 显示控件（用户可播放）
+            if (item.poster) v.setAttribute("poster", item.poster);
+            (item.sources || []).forEach((s) => {
+              const so = document.createElement("source");
+              so.setAttribute("data-src", s.src);
+              if (s.type) so.type = s.type;
+              v.appendChild(so);
+            });
+            wrap.appendChild(v);
+            card.appendChild(wrap);
           } else {
-            mediaEl = `
-              <div class="thumb-wrap">
-                <img class="thumb" src="${getThumbSrc(
-                  item
-                )}" loading="lazy" decoding="async" alt="${
-              item.title || "媒体预览"
-            }">
-              </div>`;
+            const wrap = document.createElement("div");
+            wrap.className = "thumb-wrap";
+            const img = document.createElement("img");
+            img.className = "thumb";
+            img.src = getThumbSrc(item);
+            img.loading = "lazy";
+            img.decoding = "async";
+            img.alt = item.title || "媒体预览";
+            wrap.appendChild(img);
+            card.appendChild(wrap);
           }
-          card.innerHTML = `
-            ${mediaEl}
-            <div class="meta">
-              <span>${item.title || "未命名"}</span>
-              <span>${item.type === "video" ? "视频" : "图片"}</span>
-            </div>`;
-          card.addEventListener("click", () => openLightbox(start + idx), {
-            passive: true,
-          });
+
+          const meta = document.createElement("div");
+          meta.className = "meta";
+          meta.innerHTML = `<span>${item.title || "未命名"}</span><span>${
+            item.type === "video" ? "视频" : "图片"
+          }</span>`;
+          card.appendChild(meta);
+
           grid.appendChild(card);
         });
+
         page++;
         isLoading = false;
 
+        // 懒加载视频源
         grid.querySelectorAll("video.thumb").forEach((v) => ioVideo.observe(v));
+
         if (page * pageSize >= filtered.length) {
           try {
             io.unobserve(sentinel);
@@ -828,104 +732,12 @@
               s.src = s.dataset.src;
               s.removeAttribute("data-src");
             });
-            v.load();
+            v.load(); // 加载元数据；用户点播放即可
             ioVideo.unobserve(v);
           });
         },
         { rootMargin: "600px" }
       );
-
-      function openLightbox(idx) {
-        if (idx < 0 || idx >= filtered.length) return;
-        currentIndex = idx;
-        const oldWrap = lightbox.querySelector(".lb-wrap");
-        if (oldWrap) oldWrap.remove();
-        const it = filtered[currentIndex];
-        let el;
-        if (it.type === "video") {
-          el = document.createElement("video");
-          el.className = "lb-media";
-          el.setAttribute("controls", "");
-          el.setAttribute("playsinline", "");
-          if (it.poster) el.setAttribute("poster", it.poster);
-          (it.sources || []).forEach((s) => {
-            const so = document.createElement("source");
-            so.src = s.src;
-            if (s.type) so.type = s.type;
-            el.appendChild(so);
-          });
-          el.setAttribute("aria-label", it.title || "视频预览");
-        } else {
-          el = document.createElement("img");
-          el.className = "lb-media";
-          el.alt = it.title || "图片预览";
-          el.src = it.src;
-        }
-        const wrap = document.createElement("div");
-        wrap.className = "lb-wrap";
-        wrap.appendChild(el);
-        const ov = document.createElement("div");
-        ov.className = "wm-overlay";
-        wrap.appendChild(ov);
-        lbClose.insertAdjacentElement("afterend", wrap);
-
-        lightbox.classList.add("open");
-        prevFocus = document.activeElement;
-        document.body.style.overflow = "hidden";
-        mainEl.setAttribute("aria-hidden", "true");
-        try {
-          mainEl.setAttribute("inert", "");
-        } catch {}
-        lbClose.focus();
-      }
-
-      function closeLightbox() {
-        lightbox.classList.remove("open");
-        const v = lightbox.querySelector("video.lb-media");
-        if (v) {
-          v.pause();
-          v.currentTime = 0;
-        }
-        document.body.style.overflow = "";
-        mainEl.removeAttribute("aria-hidden");
-        try {
-          mainEl.removeAttribute("inert");
-        } catch {}
-        if (prevFocus && prevFocus.focus) prevFocus.focus();
-      }
-
-      function nav(delta) {
-        if (!filtered.length) return;
-        currentIndex =
-          (currentIndex + delta + filtered.length) % filtered.length;
-        openLightbox(currentIndex);
-      }
-      lbClose.addEventListener("click", closeLightbox);
-      lbPrev.addEventListener("click", () => nav(-1));
-      lbNext.addEventListener("click", () => nav(1));
-
-      function isPointInsideWrap(e) {
-        const wrap = lightbox.querySelector(".lb-wrap");
-        if (!wrap) return false;
-        const r = wrap.getBoundingClientRect();
-        const x = e.clientX,
-          y = e.clientY;
-        return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
-      }
-      lightbox.addEventListener(
-        "pointerdown",
-        (e) => {
-          if (!isPointInsideWrap(e)) closeLightbox();
-        },
-        { passive: true }
-      );
-
-      window.addEventListener("keydown", (e) => {
-        if (!lightbox.classList.contains("open")) return;
-        if (e.key === "Escape") closeLightbox();
-        if (e.key === "ArrowLeft") nav(-1);
-        if (e.key === "ArrowRight") nav(1);
-      });
 
       function renderNav() {
         const root = document.getElementById("menuList");
@@ -955,6 +767,7 @@
       }
       renderNav();
 
+      /* —— 目录抽屉开关 —— */
       const menuBtn = document.getElementById("menuBtn");
       const drawer = document.getElementById("menuDrawer");
       const scrim = document.getElementById("scrim");
@@ -1030,7 +843,6 @@
         if (!silent) gateMsg.textContent = "";
         if (!window.__booted) {
           window.__booted = true;
-          // 媒体发现 -> 渲染
           (async () => {
             try {
               MEDIA = await discoverMedia();
@@ -1038,10 +850,8 @@
               statusEl.textContent = MEDIA.length
                 ? `已加载 ${MEDIA.length} 个文件`
                 : "未在 image/ 目录发现文件";
-              // 启动无限滚动
-              const ioTarget = document.getElementById("io-sentinel");
               try {
-                io.observe(ioTarget);
+                io.observe(sentinel);
               } catch {}
               renderNextPage();
             } catch (err) {
@@ -1075,7 +885,7 @@
         }
       });
 
-      /* —— 生成 SVG 水印，写入 CSS 变量 --wm-bg（全站生效） —— */
+      /* —— 全站水印写入 —— */
       const WM_TEXT = "qq:38190187"; // ← 改成你的水印文字
       const WM_SIZE = 240;
       const WM_COLOR = "#FFFFFF";
