@@ -470,24 +470,27 @@
       /* ========= 媒体清单（把文件名换成你 image/ 目录下的） ========= */
       const MEDIA = [
         /* 图片 */
-        { type: "image", src: "image/photo01.jpg", title: "photo01" },
-        { type: "image", src: "image/photo02.png", title: "photo02" },
-        { type: "image", src: "image/wallpaper.webp", title: "wallpaper" },
+        { type: "image", src: "image/1642686734270.jpg", title: "photo01" },
+        { type: "image", src: "image/1642686734272.jpg", title: "photo02" },
+        {
+          type: "image",
+          src: "image/1642686734276.jpg",
+          title: "我爱你我爱你我爱你我爱你我爱你我爱你我爱你我爱你我爱你",
+        },
+        { type: "image", src: "image/1642686734277.jpg", title: "photo04" },
 
         /* 视频（建议 mp4/H.264 + AAC；mov 兼容性差） */
         {
           type: "video",
           title: "clip01",
-          poster: "image/clip01-poster.jpg",
-          sources: [{ src: "image/clip01.mp4", type: "video/mp4" }],
-        },
-        {
-          type: "video",
-          title: "clip02",
-          poster: "image/clip02.jpg",
+          poster: "image/clip01-poster.jpg", // 可选：视频封面图（放在 image/）
           sources: [
-            { src: "image/clip02.mp4", type: "video/mp4" },
-          ] /* 如需 mov，自己改 type */,
+            {
+              src: "image/edfe389d46602e7f5d387d6a9b8e07c2.mp4",
+              type: "video/mp4",
+            },
+            // 如有多码率/格式可追加：{ src: 'image/clip01.webm', type: 'video/webm' },
+          ],
         },
       ];
 
