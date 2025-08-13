@@ -706,6 +706,37 @@
       let MEDIA = [];
       let filtered = [];
       let isLoading = false;
+      // —— 顺序加载图片（队列）——
+      let imgQueue = [];
+      let imgLoading = false;
+
+      function enqueueImage(imgEl) {
+        imgQueue.push(imgEl);
+        if (!imgLoading) loadNextImage();
+      }
+
+      function loadNextImage() {
+        if (imgQueue.length === 0) {
+          imgLoading = false;
+          return;
+        }
+        imgLoading = true;
+        const img = imgQueue.shift();
+
+        function done() {
+          img.removeEventListener("load", done);
+          img.removeEventListener("error", done);
+          loadNextImage();
+        }
+
+        // 设为“主动”加载，确保按顺序真正发起请求
+        img.loading = "eager";
+        img.addEventListener("load", done, { once: true });
+        img.addEventListener("error", done, { once: true });
+
+        img.src = img.dataset.src; // 触发加载
+        img.removeAttribute("data-src"); // 清理
+      }
 
       function getThumbSrc(item) {
         if (item.thumb) return item.thumb;
@@ -744,16 +775,19 @@
             wrap.appendChild(v);
             card.appendChild(wrap);
           } else {
+            // 图片（修改前是直接赋值 src）
             const wrap = document.createElement("div");
             wrap.className = "thumb-wrap";
             const img = document.createElement("img");
             img.className = "thumb";
-            img.src = getThumbSrc(item);
-            img.loading = "lazy";
+            img.setAttribute("data-src", getThumbSrc(item)); // 不立即加载
             img.decoding = "async";
             img.alt = item.title || "媒体预览";
             wrap.appendChild(img);
             card.appendChild(wrap);
+
+            // 加入顺序加载队列（按顺序一个接一个加载）
+            enqueueImage(img);
           }
 
           const meta = document.createElement("div");
