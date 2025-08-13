@@ -502,6 +502,14 @@
     >
 
     <script>
+      // 额外媒体：外链图片（会显示在所有自动发现的文件之前）
+      const EXTRA_MEDIA = [
+        {
+          type: "image",
+          src: "https://p.sda1.dev/26/8618f590502d308c0dec17704c57134d/1717983086_new__6.jpg",
+          title: "外链图片",
+        },
+      ];
       /* ========= 自动发现 image/ 下文件：优先 GitHub Pages，其次目录索引 ========= */
       const IMAGE_EXT = [
         ".jpg",
@@ -649,6 +657,7 @@
 
       function getThumbSrc(item) {
         if (item.thumb) return item.thumb;
+        if (/^https?:\/\//i.test(item.src)) return item.src;
         return `${item.src}?auto=format&w=1200&q=80&fit=max`;
       }
 
@@ -850,6 +859,9 @@
           (async () => {
             try {
               MEDIA = await discoverMedia();
+              // 把外链图片插到最前面
+              MEDIA = [...EXTRA_MEDIA, ...MEDIA];
+
               filtered = MEDIA.slice();
               statusEl.textContent = MEDIA.length
                 ? `已加载 ${MEDIA.length} 个文件`
