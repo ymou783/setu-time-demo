@@ -503,14 +503,24 @@
 
     <script>
       // 额外媒体：外链图片（会显示在所有自动发现的文件之前）
+      // // 额外媒体：外链资源（会排在最前面）
+      // 之前如果有外链图片等，保留它们
       const EXTRA_MEDIA = [
         {
           type: "image",
           src: "https://p.sda1.dev/26/8618f590502d308c0dec17704c57134d/1717983086_new__6.jpg",
           title: "外链图片",
         },
+        {
+          type: "video",
+          title: "外链视频",
+          poster: "", // 可填封面图URL；没有就留空
+          sources: [
+            { src: "https://tntfiles.com/icdeppyhhb", type: "" },
+            // 如果你确定是 MP4，可写成 type: "video/mp4"
+          ],
+        },
       ];
-      
 
       /* ========= 自动发现 image/ 下文件：优先 GitHub Pages，其次目录索引 ========= */
       const IMAGE_EXT = [
