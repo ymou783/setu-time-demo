@@ -17,12 +17,10 @@
         --gap: 14px;
         --accent1: #ff6a6a;
         --accent2: #ff3d99;
-
-        /* —— 水印参数 —— */
-        --wm-size: 240px; /* 越小越密 */
-        --wm-rotate: -24deg; /* 倾斜角度 */
-        --wm-opacity: 0.18; /* 0~1 */
-        --wm-bg: none; /* JS 注入 SVG data-url */
+        --wm-size: 240px;
+        --wm-rotate: -24deg;
+        --wm-opacity: 0.18;
+        --wm-bg: none;
       }
       * {
         box-sizing: border-box;
@@ -38,8 +36,6 @@
         color: var(--text);
         background: var(--bg);
       }
-
-      /* 顶栏 */
       .topbar {
         position: sticky;
         top: 0;
@@ -50,7 +46,6 @@
         padding: 14px 18px;
         border-bottom: 1px solid var(--outline);
         background: rgba(250, 250, 252, 0.75);
-        -webkit-backdrop-filter: saturate(1.2) blur(8px);
         backdrop-filter: saturate(1.2) blur(8px);
       }
       .brand {
@@ -63,11 +58,6 @@
         color: #2a2f3a;
         opacity: 0.9;
       }
-      .spacer {
-        height: 0;
-      }
-
-      /* 目录按钮 & 抽屉 */
       .menu-btn {
         appearance: none;
         -webkit-appearance: none;
@@ -86,7 +76,6 @@
         outline: 2px solid var(--accent1);
         outline-offset: 2px;
       }
-
       .drawer {
         position: fixed;
         inset: 0 auto 0 0;
@@ -153,34 +142,37 @@
       .nav-group a:hover {
         background: rgba(59, 130, 246, 0.08);
       }
-
-      /* 容器 */
       .wrap {
         width: min(1200px, 100%);
         margin: 0 auto;
         padding: 14px clamp(10px, 3vw, 18px) 120px;
       }
-
-      /* 瀑布流 */
+      .custom-text {
+        width: min(1200px, 100%);
+        margin: 16px auto 0;
+        padding: 12px 18px;
+        background: var(--surface);
+        border: 1px solid var(--outline);
+        border-radius: var(--radius);
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--text);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      }
+      .custom-text p {
+        margin: 0;
+      }
       .grid {
-        column-width: 300px;
-        column-gap: var(--gap);
+        display: flex;
+        flex-direction: column;
+        gap: var(--gap);
       }
-      @media (max-width: 900px) {
-        .grid {
-          column-width: 240px;
-        }
-      }
-      @media (max-width: 700px) {
-        .grid {
-          column-width: 180px;
-        }
-      }
-
       .card {
         display: block;
+        width: 100%;
+        max-width: 100%;
         break-inside: avoid;
-        margin: 0 0 var(--gap);
+        margin: 0;
         border-radius: var(--radius);
         background: var(--surface);
         border: 1px solid var(--outline);
@@ -192,18 +184,16 @@
         transform: translateY(-1px);
         box-shadow: 0 6px 18px rgba(16, 24, 40, 0.08);
       }
-
       .thumb-wrap {
         position: relative;
         overflow: hidden;
       }
-      /* 让卡片里的图片完整显示，不裁切 */
       .thumb {
         display: block;
         width: 100%;
-        height: auto; /* 跟随原图高度 */
-        object-fit: contain; /* 不裁剪，完整显示 */
-        aspect-ratio: auto; /* 取消固定 4:3 比例 */
+        height: auto;
+        object-fit: contain;
+        aspect-ratio: auto;
         background: #eee;
       }
       .meta {
@@ -215,12 +205,10 @@
         font-size: 12px;
         border-top: 1px solid var(--outline);
       }
-
-      /* 灯箱 */
       .lightbox {
         position: fixed;
         inset: 0;
-        z-index: 100;
+        z-index: 1000;
         display: none;
         align-items: center;
         justify-content: center;
@@ -235,10 +223,29 @@
         border-radius: 12px;
         background: #000;
         box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+        position: relative;
+        z-index: 1;
       }
       .lb-media:is(img, video) {
         width: auto;
         height: auto;
+      }
+      .lb-wrap {
+        position: relative;
+        display: inline-block;
+        z-index: 1001;
+      }
+      .lb-wrap .wm-overlay {
+        position: absolute;
+        inset: -6%;
+        background-image: var(--wm-bg);
+        background-repeat: repeat;
+        background-size: var(--wm-size) var(--wm-size);
+        transform: rotate(var(--wm-rotate));
+        opacity: var(--wm-opacity);
+        pointer-events: none;
+        border-radius: 12px;
+        z-index: 1002;
       }
       .lb-controls {
         position: fixed;
@@ -247,7 +254,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 3; /* 按钮最高，保证可点 */
+        z-index: 99999 !important;
       }
       .lb-btn {
         pointer-events: auto;
@@ -287,9 +294,6 @@
         top: 16px;
         right: 16px;
       }
-
-      /* —— 全站水印 —— */
-      /* 缩略图覆盖 */
       .thumb-wrap::after {
         content: "";
         position: absolute;
@@ -302,31 +306,6 @@
         pointer-events: none;
         z-index: 1;
       }
-      /* 灯箱：包裹层覆盖（最稳） */
-      .lb-wrap {
-        position: relative;
-        display: inline-block;
-      }
-      .lb-wrap .lb-media {
-        display: block;
-        border-radius: 12px;
-        position: relative;
-        z-index: 1;
-      }
-      .lb-wrap .wm-overlay {
-        position: absolute;
-        inset: -6%;
-        background-image: var(--wm-bg);
-        background-repeat: repeat;
-        background-size: var(--wm-size) var(--wm-size);
-        transform: rotate(var(--wm-rotate));
-        opacity: var(--wm-opacity);
-        pointer-events: none;
-        border-radius: 12px;
-        z-index: 2;
-      }
-
-      /* 右下角悬浮按钮 */
       .fab {
         position: fixed;
         right: 16px;
@@ -350,8 +329,6 @@
         transform: translateY(-1px);
         box-shadow: 0 16px 40px rgba(255, 82, 120, 0.45);
       }
-
-      /* 下载卡片 */
       .download-card {
         width: min(760px, 92%);
         margin: 40px auto 16px;
@@ -385,8 +362,6 @@
         background: linear-gradient(135deg, var(--accent1), var(--accent2));
         box-shadow: 0 10px 24px rgba(255, 82, 120, 0.3);
       }
-
-      /* 底部按钮 */
       .bottom-cta {
         width: min(760px, 92%);
         margin: 26px auto 40px;
@@ -414,8 +389,6 @@
       .bottom-cta .cta-btn:active {
         transform: translateY(1px);
       }
-
-      /* 兼容性回退 */
       @supports not (
         (backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px))
       ) {
@@ -423,8 +396,6 @@
           background: #fafafc;
         }
       }
-
-      /* --- 访问密码 Gate --- */
       [data-locked="1"] header,
       [data-locked="1"] #main,
       [data-locked="1"] .fab {
@@ -496,7 +467,6 @@
         color: #c1121f;
         font-weight: 700;
       }
-
       @media (prefers-reduced-motion: reduce) {
         .card,
         .fab,
@@ -504,50 +474,12 @@
           transition: none;
         }
       }
-      /* —— 修复：灯箱层级统一抬高，确保按钮永远在最上面 —— */
-      .lightbox {
-        z-index: 1000;
-      } /* 灯箱整体 */
-      .lb-wrap {
-        position: relative;
-        z-index: 1001;
-      } /* 放大媒体包裹层 */
-      .lb-wrap .lb-media {
-        position: relative;
-        z-index: 1001;
+      .loading {
+        width: min(1200px, 100%);
+        margin: 14px auto 0;
+        color: var(--muted);
+        padding: 0 6px;
       }
-      .lb-wrap .wm-overlay {
-        z-index: 1002; /* 覆盖在图片之上 */
-        pointer-events: none; /* 不挡按钮点击 */
-      }
-      .lb-controls {
-        position: fixed; /* 脱离文档流，独立堆叠上下文 */
-        z-index: 1003; /* 最高层，压过水印与图片 */
-      }
-      /* —— 灯箱按钮压到最顶（移动端也稳） —— */
-      .lightbox {
-        z-index: 2147483000;
-      } /* 提高灯箱层级 */
-      .lb-wrap {
-        position: relative;
-        z-index: 2147483001;
-      }
-      .lb-wrap .lb-media {
-        position: relative;
-        z-index: 2147483001;
-      }
-      .lb-wrap .wm-overlay {
-        z-index: 2147483002;
-        pointer-events: none;
-      }
-      .lb-controls {
-        position: fixed; /* fixed 脱离堆叠 */
-        z-index: 2147483647; /* 顶层，盖住一切 */
-        pointer-events: none; /* 容器不接收事件 */
-      }
-      .lb-controls .lb-btn {
-        pointer-events: auto;
-      } /* 只有按钮接收事件 */
     </style>
   </head>
   <body data-locked="1">
@@ -589,6 +521,13 @@
       <div class="spacer"></div>
     </header>
 
+    <!-- 自定义文本框（标题下、媒体上） -->
+    <div class="custom-text">
+      <p>
+        这里是可自定义的公告/介绍文本。你可以写期刊说明、更新日志、观看提示等内容。
+      </p>
+    </div>
+
     <!-- 左侧目录抽屉 -->
     <aside id="menuDrawer" class="drawer" aria-label="站点目录" tabindex="-1">
       <div class="nav-header">目录</div>
@@ -597,10 +536,12 @@
     <div id="scrim" class="scrim" hidden></div>
 
     <main id="main" class="wrap">
+      <div id="status" class="loading" aria-live="polite">
+        正在加载媒体文件…
+      </div>
       <section id="grid" class="grid" aria-live="polite"></section>
       <div id="io-sentinel" style="height: 1px"></div>
 
-      <!-- 底部下载卡片 -->
       <section class="download-card" aria-label="下载原图">
         <h3>本期无水印原图</h3>
         <p>保存到自己的网盘防止和谐</p>
@@ -613,7 +554,6 @@
         >
       </section>
 
-      <!-- 页面底部按钮（与右下角悬浮按钮同链） -->
       <section class="bottom-cta" aria-label="添加好友获取更新">
         <a
           id="btn-bottom-cta"
@@ -658,44 +598,122 @@
     </aside>
 
     <script>
-      /** 媒体清单 */
-      /* ====== 媒体清单（使用 image/ 文件夹）====== */
-      const MEDIA = [
-        // ====== 图片示例 ======
-        { type: "image", src: "image/1642686734270.jpg", title: "photo01" },
-        { type: "image", src: "image/1642686734272.jpg", title: "photo02" },
-        {
-          type: "image",
-          src: "image/1642686734276.jpg",
-          title: "我爱你我爱你我爱你我爱你我爱你我爱你我爱你我爱你我爱你",
-        },
-        { type: "image", src: "image/1642686734277.jpg", title: "photo04" },
-
-        // 如果你有想单独指定缩略图的，可以加 thumb 字段（否则系统就用 src）
-        // { type: 'image', src: 'image/portrait.jpg', thumb: 'image/portrait-thumb.jpg', title: 'portrait' },
-
-        // ====== 视频示例（建议加 poster 预览图）======
-        {
-          type: "video",
-          title: "clip01",
-          poster: "image/clip01-poster.jpg", // 可选：视频封面图（放在 image/）
-          sources: [
-            {
-              src: "image/edfe389d46602e7f5d387d6a9b8e07c2.mp4",
-              type: "video/mp4",
-            },
-            // 如有多码率/格式可追加：{ src: 'image/clip01.webm', type: 'video/webm' },
-          ],
-        },
-        {
-          type: "video",
-          title: "clip02",
-          poster: "image/clip02.jpg",
-          sources: [{ src: "image/clip02.mov", type: "video/quicktime" }],
-        },
+      /* ========= 媒体自动发现：优先 GitHub Pages，其次解析 /image/ 目录索引 ========= */
+      const IMAGE_EXT = [
+        ".jpg",
+        ".jpeg",
+        ".png",
+        ".gif",
+        ".webp",
+        ".bmp",
+        ".avif",
       ];
+      const VIDEO_EXT = [".mp4", ".mov", ".webm", ".m4v", ".ogg"];
+      const MIME_BY_EXT = {
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".png": "image/png",
+        ".gif": "image/gif",
+        ".webp": "image/webp",
+        ".bmp": "image/bmp",
+        ".avif": "image/avif",
+        ".mp4": "video/mp4",
+        ".mov": "video/quicktime",
+        ".webm": "video/webm",
+        ".m4v": "video/x-m4v",
+        ".ogg": "video/ogg",
+      };
+      const isImage = (f) => IMAGE_EXT.some((e) => f.toLowerCase().endsWith(e));
+      const isVideo = (f) => VIDEO_EXT.some((e) => f.toLowerCase().endsWith(e));
+      const guessMime = (f) => {
+        const e = Object.keys(MIME_BY_EXT).find((x) =>
+          f.toLowerCase().endsWith(x)
+        );
+        return e ? MIME_BY_EXT[e] : "";
+      };
 
-      /* 左侧目录 */
+      async function listViaGitHubAPI() {
+        // 自动推断 owner / repo / branch（main优先）
+        const host = location.hostname;
+        let owner = null,
+          repo = null,
+          branch = "main";
+        if (host.endsWith("github.io")) {
+          owner = host.split(".")[0];
+          const seg = location.pathname.split("/").filter(Boolean);
+          repo = seg[0] || `${owner}.github.io`;
+        }
+        if (!owner || !repo) return null; // 无法推断，放弃 GitHub API
+
+        async function fetchDir(ref) {
+          const url = `https://api.github.com/repos/${owner}/${repo}/contents/image?ref=${encodeURIComponent(
+            ref
+          )}`;
+          const r = await fetch(url, {
+            headers: { Accept: "application/vnd.github+json" },
+          });
+          if (!r.ok) return null;
+          return { items: await r.json(), ref };
+        }
+        let res = await fetchDir(branch);
+        if (!res) {
+          branch = "master";
+          res = await fetchDir(branch);
+        }
+        if (!res) return null;
+
+        const list = res.items?.filter((x) => x.type === "file") || [];
+        return list.map((x) => ({
+          path: x.path, // 'image/xxx.ext'
+          url: x.download_url, // raw 内容直链
+          name: x.name,
+        }));
+      }
+
+      async function listViaDirectoryIndex() {
+        // 尝试拉取 /image/ 并解析 <a href="xxx"> 链接（需要服务器开启目录索引）
+        try {
+          const r = await fetch("image/", { mode: "cors" });
+          if (!r.ok) return null;
+          const html = await r.text();
+          const hrefs = [...html.matchAll(/href="([^"]+)"/gi)].map((m) => m[1]);
+          const files = hrefs.filter((h) => isImage(h) || isVideo(h));
+          if (!files.length) return null;
+          return files.map((name) => ({
+            path: "image/" + name.replace(/^\.?\//, ""),
+            url: "image/" + name.replace(/^\.?\//, ""),
+            name,
+          }));
+        } catch {
+          return null;
+        }
+      }
+
+      async function discoverMedia() {
+        let entries = await listViaGitHubAPI();
+        if (!entries) entries = await listViaDirectoryIndex();
+        if (!entries) entries = []; // 最差情况：空
+
+        // 将文件映射为页面使用的 MEDIA 结构
+        const media = [];
+        for (const e of entries.sort((a, b) =>
+          a.name.localeCompare(b.name, "zh-Hans-CN")
+        )) {
+          if (isImage(e.name)) {
+            media.push({ type: "image", src: e.url, title: e.name });
+          } else if (isVideo(e.name)) {
+            media.push({
+              type: "video",
+              title: e.name,
+              poster: "",
+              sources: [{ src: e.url, type: guessMime(e.name) }],
+            });
+          }
+        }
+        return media;
+      }
+
+      /* ================== 页面其余逻辑（与你的原版一致/已修复） ================== */
       const NAV = [
         {
           title: "往期",
@@ -709,17 +727,11 @@
           title: "快捷入口",
           items: [
             { label: "无水印原图", href: "https://example.com/download" },
-            {
-              label: "添加作者 QQ",
-              href: document.querySelector(".fab")
-                ? document.querySelector(".fab").href
-                : "#",
-            },
+            { label: "添加作者 QQ", href: "#", _syncFromFab: true },
           ],
         },
       ];
 
-      /* ------- 变量 ------- */
       const grid = document.getElementById("grid");
       const lightbox = document.getElementById("lightbox");
       const lbPrev = document.getElementById("lbPrev");
@@ -727,71 +739,70 @@
       const lbClose = document.getElementById("lbClose");
       const sentinel = document.getElementById("io-sentinel");
       const mainEl = document.getElementById("main");
+      const statusEl = document.getElementById("status");
 
       let page = 0;
       const pageSize = 18;
-      let filtered = MEDIA.slice();
+      let MEDIA = []; // 自动发现后写入
+      let filtered = []; // = MEDIA.slice()
       let isLoading = false;
       let currentIndex = 0;
       let prevFocus = null;
-      // 生成不裁切的缩略图地址（无 thumb 时回退到原图）
+
       function getThumbSrc(item) {
-        if (item.thumb) return item.thumb; // 如果你自己给的就是不裁切的，可以保留
-        // Unsplash：使用 fit=max 不裁切；你也可以直接 return item.src
+        if (item.thumb) return item.thumb;
         return `${item.src}?auto=format&w=1200&q=80&fit=max`;
       }
 
-      /* ------- 渲染一个分页 ------- */
       function renderNextPage() {
         if (isLoading) return;
         isLoading = true;
         const start = page * pageSize;
         const list = filtered.slice(start, start + pageSize);
-
         list.forEach((item, idx) => {
           const card = document.createElement("article");
           card.className = "card";
           card.dataset.type = item.type || "image";
-
           let mediaEl = "";
           if (item.type === "video") {
             mediaEl = `
-        <div class="thumb-wrap">
-          <video class="thumb" preload="metadata" playsinline muted poster="${
-            item.poster || ""
-          }">
-            ${(item.sources || [])
-              .map((s) => `<source data-src="${s.src}" type="${s.type || ""}">`)
-              .join("")}
-          </video>
-        </div>`;
+              <div class="thumb-wrap">
+                <video class="thumb" preload="metadata" playsinline muted poster="${
+                  item.poster || ""
+                }">
+                  ${(item.sources || [])
+                    .map(
+                      (s) =>
+                        `<source data-src="${s.src}" type="${s.type || ""}">`
+                    )
+                    .join("")}
+                </video>
+              </div>`;
           } else {
             mediaEl = `
-        <div class="thumb-wrap">
-          <img class="thumb" src="${getThumbSrc(
-            item
-          )}" loading="lazy" decoding="async" alt="${item.title || "媒体预览"}">
-        </div>`;
+              <div class="thumb-wrap">
+                <img class="thumb" src="${getThumbSrc(
+                  item
+                )}" loading="lazy" decoding="async" alt="${
+              item.title || "媒体预览"
+            }">
+              </div>`;
           }
-
           card.innerHTML = `
-      ${mediaEl}
-      <div class="meta">
-        <span>${item.title || "未命名"}</span>
-        <span>${item.type === "video" ? "视频" : "图片"}</span>
-      </div>`;
-
+            ${mediaEl}
+            <div class="meta">
+              <span>${item.title || "未命名"}</span>
+              <span>${item.type === "video" ? "视频" : "图片"}</span>
+            </div>`;
           card.addEventListener("click", () => openLightbox(start + idx), {
             passive: true,
           });
           grid.appendChild(card);
         });
-
         page++;
         isLoading = false;
 
         grid.querySelectorAll("video.thumb").forEach((v) => ioVideo.observe(v));
-
         if (page * pageSize >= filtered.length) {
           try {
             io.unobserve(sentinel);
@@ -799,18 +810,14 @@
         }
       }
 
-      /* ------- 无限滚动触发 ------- */
       const io = new IntersectionObserver(
-        (entries) => {
+        (entries) =>
           entries.forEach((ent) => {
             if (ent.isIntersecting) renderNextPage();
-          });
-        },
+          }),
         { rootMargin: "1000px 0px" }
       );
-      io.observe(sentinel);
 
-      /* ------- 视频懒加载 ------- */
       const ioVideo = new IntersectionObserver(
         (entries) => {
           entries.forEach((ent) => {
@@ -828,57 +835,38 @@
         { rootMargin: "600px" }
       );
 
-      /* ------- 灯箱 ------- */
       function openLightbox(idx) {
         if (idx < 0 || idx >= filtered.length) return;
         currentIndex = idx;
-
-        // 删旧包裹层，避免残留
         const oldWrap = lightbox.querySelector(".lb-wrap");
         if (oldWrap) oldWrap.remove();
-
         const it = filtered[currentIndex];
         let el;
         if (it.type === "video") {
           el = document.createElement("video");
           el.className = "lb-media";
-
-          /* 关键：移动端内联播放 & 不自动播放 */
           el.setAttribute("controls", "");
           el.setAttribute("playsinline", "");
-          el.setAttribute("webkit-playsinline", ""); // iOS Safari 需要
-          el.removeAttribute("autoplay"); // 禁止自动播放（防策略）
-          el.muted = false; // 允许有声播放
           if (it.poster) el.setAttribute("poster", it.poster);
-
-          /* 源 */
           (it.sources || []).forEach((s) => {
             const so = document.createElement("source");
             so.src = s.src;
             if (s.type) so.type = s.type;
             el.appendChild(so);
           });
-
-          /* 防止点击视频时事件冒泡到遮罩导致关闭 */
-          el.addEventListener("click", (e) => e.stopPropagation(), {
-            passive: true,
-          });
-          el.addEventListener("touchstart", (e) => e.stopPropagation(), {
-            passive: true,
-          });
-          el.addEventListener("touchend", (e) => e.stopPropagation(), {
-            passive: true,
-          });
+          el.setAttribute("aria-label", it.title || "视频预览");
+        } else {
+          el = document.createElement("img");
+          el.className = "lb-media";
+          el.alt = it.title || "图片预览";
+          el.src = it.src;
         }
-
-        // 包裹层 + 覆盖水印
         const wrap = document.createElement("div");
         wrap.className = "lb-wrap";
         wrap.appendChild(el);
         const ov = document.createElement("div");
         ov.className = "wm-overlay";
         wrap.appendChild(ov);
-
         lbClose.insertAdjacentElement("afterend", wrap);
 
         lightbox.classList.add("open");
@@ -890,6 +878,7 @@
         } catch {}
         lbClose.focus();
       }
+
       function closeLightbox() {
         lightbox.classList.remove("open");
         const v = lightbox.querySelector("video.lb-media");
@@ -904,6 +893,7 @@
         } catch {}
         if (prevFocus && prevFocus.focus) prevFocus.focus();
       }
+
       function nav(delta) {
         if (!filtered.length) return;
         currentIndex =
@@ -913,13 +903,23 @@
       lbClose.addEventListener("click", closeLightbox);
       lbPrev.addEventListener("click", () => nav(-1));
       lbNext.addEventListener("click", () => nav(1));
+
+      function isPointInsideWrap(e) {
+        const wrap = lightbox.querySelector(".lb-wrap");
+        if (!wrap) return false;
+        const r = wrap.getBoundingClientRect();
+        const x = e.clientX,
+          y = e.clientY;
+        return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+      }
       lightbox.addEventListener(
-        "click",
+        "pointerdown",
         (e) => {
-          if (e.target === lightbox) closeLightbox();
+          if (!isPointInsideWrap(e)) closeLightbox();
         },
         { passive: true }
       );
+
       window.addEventListener("keydown", (e) => {
         if (!lightbox.classList.contains("open")) return;
         if (e.key === "Escape") closeLightbox();
@@ -927,7 +927,6 @@
         if (e.key === "ArrowRight") nav(1);
       });
 
-      /* ------- 渲染目录 ------- */
       function renderNav() {
         const root = document.getElementById("menuList");
         if (!root) return;
@@ -942,7 +941,9 @@
             const li = document.createElement("li");
             const a = document.createElement("a");
             a.textContent = it.label;
-            a.href = it.href;
+            a.href = it._syncFromFab
+              ? document.querySelector(".fab")?.href || "#"
+              : it.href;
             a.target = "_blank";
             a.rel = "noopener";
             li.appendChild(a);
@@ -954,7 +955,6 @@
       }
       renderNav();
 
-      /* ------- 目录抽屉开关 ------- */
       const menuBtn = document.getElementById("menuBtn");
       const drawer = document.getElementById("menuDrawer");
       const scrim = document.getElementById("scrim");
@@ -987,7 +987,6 @@
         if (e.target.tagName.toLowerCase() === "a") closeDrawer();
       });
 
-      /* —— 同步底部按钮与右下角悬浮按钮链接 —— */
       (function syncBottomBtnHref() {
         var fab = document.querySelector(".fab");
         var bottomBtn = document.getElementById("btn-bottom-cta");
@@ -998,10 +997,10 @@
       const GATE = {
         salt: "st-time-v1",
         hash: "946174e4dfa66e0471d5a5fa8d134975784e1ce759c9faf421b5559464be8f63", // sha256('1234'+salt)
-        remember: false, // 保持每次都输入
+        remember: false,
         ttlHours: 24,
         storageKey: "gate_v1_token",
-        plain: "1234", // WebCrypto 不可用时的兜底
+        plain: "1234",
       };
       async function sha256Hex(str) {
         if (window.crypto && crypto.subtle) {
@@ -1015,10 +1014,10 @@
               .join("");
           } catch (e) {}
         }
-        return null; // 本地 file:// 或老浏览器会走兜底
+        return null;
       }
       window._gateHash = async (pwd) =>
-        console.log(await sha256Hex(pwd + GATE.salt)); // 控制台工具
+        console.log(await sha256Hex(pwd + GATE.salt));
 
       const gateEl = document.getElementById("gate");
       const gateForm = document.getElementById("gateForm");
@@ -1031,7 +1030,25 @@
         if (!silent) gateMsg.textContent = "";
         if (!window.__booted) {
           window.__booted = true;
-          renderNextPage();
+          // 媒体发现 -> 渲染
+          (async () => {
+            try {
+              MEDIA = await discoverMedia();
+              filtered = MEDIA.slice();
+              statusEl.textContent = MEDIA.length
+                ? `已加载 ${MEDIA.length} 个文件`
+                : "未在 image/ 目录发现文件";
+              // 启动无限滚动
+              const ioTarget = document.getElementById("io-sentinel");
+              try {
+                io.observe(ioTarget);
+              } catch {}
+              renderNextPage();
+            } catch (err) {
+              console.error(err);
+              statusEl.textContent = "媒体加载失败";
+            }
+          })();
         }
       }
       (function gateInit() {
@@ -1051,9 +1068,8 @@
         const ok =
           (h && GATE.hash && h === GATE.hash) ||
           (!h && GATE.plain && input === GATE.plain);
-        if (ok) {
-          unlockUI(false);
-        } else {
+        if (ok) unlockUI(false);
+        else {
           gateMsg.textContent = "密码不正确";
           gatePwd.select();
         }
@@ -1064,8 +1080,7 @@
       const WM_SIZE = 240;
       const WM_COLOR = "#FFFFFF";
       (function setGlobalWatermark() {
-        const svg = `
-<svg xmlns="http://www.w3.org/2000/svg" width="${WM_SIZE}" height="${WM_SIZE}" viewBox="0 0 ${WM_SIZE} ${WM_SIZE}">
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${WM_SIZE}" height="${WM_SIZE}" viewBox="0 0 ${WM_SIZE} ${WM_SIZE}">
   <style>text{ font:700 18px system-ui,-apple-system,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',Arial; }</style>
   <text x="16" y="${WM_SIZE / 2}" fill="${WM_COLOR}">${WM_TEXT}</text>
 </svg>`;
