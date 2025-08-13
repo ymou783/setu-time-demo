@@ -3,9 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>涩图time • 第一期</title>
+    <title>色图time • 第一期</title>
     <meta name="color-scheme" content="light dark" />
-    <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
     <style>
       :root {
         --bg: #f6f7fb;
@@ -13,16 +12,15 @@
         --text: #1b1e27;
         --muted: #6b7280;
         --outline: rgba(20, 22, 30, 0.08);
-        --ring: rgba(255, 85, 85, 0.15);
         --radius: 14px;
         --gap: 14px;
         --accent1: #ff6a6a;
         --accent2: #ff3d99;
 
-        /* —— 水印参数 —— */
+        /* 水印参数 */
         --wm-size: 240px; /* 越小越密 */
         --wm-rotate: -24deg; /* 倾斜角度 */
-        --wm-opacity: 0.18; /* 0~1 */
+        --wm-opacity: 0.18; /* 透明度 0~1 */
         --wm-bg: none; /* JS 注入 SVG data-url */
       }
       * {
@@ -35,12 +33,12 @@
       body {
         margin: 0;
         font: 14px/1.6 system-ui, -apple-system, Segoe UI, Roboto, PingFang SC,
-          Microsoft YaHei, Helvetica, Arial, sans-serif;
+          Microsoft YaHei, Arial, sans-serif;
         color: var(--text);
         background: var(--bg);
       }
 
-      /* 顶栏 */
+      /* 顶栏（左目录按钮 + 中标题 + 右占位） */
       .topbar {
         position: sticky;
         top: 0;
@@ -57,37 +55,18 @@
       .brand {
         justify-self: center;
         font-size: clamp(18px, 2.4vw, 28px);
-        line-height: 1.2;
         font-weight: 800;
-        letter-spacing: 0.2px;
-        white-space: nowrap;
-        color: #2a2f3a;
-        opacity: 0.9;
       }
-      .spacer {
-        height: 0;
-      }
-
-      /* 目录按钮 & 抽屉 */
       .menu-btn {
         appearance: none;
         -webkit-appearance: none;
         cursor: pointer;
         border: 1px solid var(--outline);
         background: var(--surface);
-        color: var(--text);
         border-radius: 10px;
         padding: 8px 12px;
         font-weight: 700;
       }
-      .menu-btn:hover {
-        filter: brightness(1.03);
-      }
-      .menu-btn:focus-visible {
-        outline: 2px solid var(--accent1);
-        outline-offset: 2px;
-      }
-
       .drawer {
         position: fixed;
         inset: 0 auto 0 0;
@@ -117,15 +96,12 @@
         font-weight: 800;
         padding: 6px 10px 10px;
       }
-      .nav-group {
-        margin: 6px 8px;
-      }
       .nav-group details {
         border: 1px solid var(--outline);
         border-radius: 12px;
-        background: var(--surface);
+        margin: 8px;
         overflow: hidden;
-        margin: 8px 0;
+        background: var(--surface);
       }
       .nav-group summary {
         list-style: none;
@@ -136,33 +112,24 @@
       .nav-group summary::-webkit-details-marker {
         display: none;
       }
-      .nav-group ul {
-        margin: 0;
-        padding: 6px 0 10px 0;
-      }
-      .nav-group li {
-        list-style: none;
-      }
       .nav-group a {
         display: block;
         margin: 2px 8px;
         padding: 8px 12px;
         border-radius: 8px;
-        color: var(--text);
         text-decoration: none;
+        color: var(--text);
       }
       .nav-group a:hover {
         background: rgba(59, 130, 246, 0.08);
       }
 
-      /* 容器 */
+      /* 容器与瀑布流 */
       .wrap {
         width: min(1200px, 100%);
         margin: 0 auto;
         padding: 14px clamp(10px, 3vw, 18px) 120px;
       }
-
-      /* 瀑布流 */
       .grid {
         column-width: 300px;
         column-gap: var(--gap);
@@ -198,13 +165,13 @@
         position: relative;
         overflow: hidden;
       }
-      /* 让卡片里的图片完整显示，不裁切 */
+      /* 不裁剪：缩略图完整显示原图比例 */
       .thumb {
         display: block;
         width: 100%;
-        height: auto; /* 跟随原图高度 */
-        object-fit: contain; /* 不裁剪，完整显示 */
-        aspect-ratio: auto; /* 取消固定 4:3 比例 */
+        height: auto;
+        object-fit: contain;
+        aspect-ratio: auto;
         background: #eee;
       }
       .meta {
@@ -221,11 +188,11 @@
       .lightbox {
         position: fixed;
         inset: 0;
-        z-index: 100;
         display: none;
         align-items: center;
         justify-content: center;
         background: rgba(0, 0, 0, 0.62);
+        z-index: 2147483000; /* 高层级基线 */
       }
       .lightbox.open {
         display: flex;
@@ -236,6 +203,8 @@
         border-radius: 12px;
         background: #000;
         box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+        position: relative;
+        z-index: 2147483001;
       }
       .lb-media:is(img, video) {
         width: auto;
@@ -244,11 +213,11 @@
       .lb-controls {
         position: fixed;
         inset: 0;
-        pointer-events: none;
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 3; /* 按钮最高，保证可点 */
+        pointer-events: none;
+        z-index: 2147483647; /* 最高层，压过水印与图片 */
       }
       .lb-btn {
         pointer-events: auto;
@@ -290,7 +259,6 @@
       }
 
       /* —— 全站水印 —— */
-      /* 缩略图覆盖 */
       .thumb-wrap::after {
         content: "";
         position: absolute;
@@ -303,16 +271,16 @@
         pointer-events: none;
         z-index: 1;
       }
-      /* 灯箱：包裹层覆盖（最稳） */
       .lb-wrap {
         position: relative;
         display: inline-block;
+        z-index: 2147483001;
       }
       .lb-wrap .lb-media {
         display: block;
         border-radius: 12px;
         position: relative;
-        z-index: 1;
+        z-index: 2147483001;
       }
       .lb-wrap .wm-overlay {
         position: absolute;
@@ -324,7 +292,7 @@
         opacity: var(--wm-opacity);
         pointer-events: none;
         border-radius: 12px;
-        z-index: 2;
+        z-index: 2147483002;
       }
 
       /* 右下角悬浮按钮 */
@@ -352,7 +320,7 @@
         box-shadow: 0 16px 40px rgba(255, 82, 120, 0.45);
       }
 
-      /* 下载卡片 */
+      /* 下载卡片 & 底部按钮（保持不变，可按需改文案和链接） */
       .download-card {
         width: min(760px, 92%);
         margin: 40px auto 16px;
@@ -386,8 +354,6 @@
         background: linear-gradient(135deg, var(--accent1), var(--accent2));
         box-shadow: 0 10px 24px rgba(255, 82, 120, 0.3);
       }
-
-      /* 底部按钮 */
       .bottom-cta {
         width: min(760px, 92%);
         margin: 26px auto 40px;
@@ -415,144 +381,10 @@
       .bottom-cta .cta-btn:active {
         transform: translateY(1px);
       }
-
-      /* 兼容性回退 */
-      @supports not (
-        (backdrop-filter: blur(8px)) or (-webkit-backdrop-filter: blur(8px))
-      ) {
-        .topbar {
-          background: #fafafc;
-        }
-      }
-
-      /* --- 访问密码 Gate --- */
-      [data-locked="1"] header,
-      [data-locked="1"] #main,
-      [data-locked="1"] .fab {
-        display: none !important;
-      }
-      .gate {
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 24px;
-        background: radial-gradient(
-          120% 120% at 50% 0%,
-          rgba(0, 0, 0, 0.25),
-          rgba(0, 0, 0, 0.45)
-        );
-        backdrop-filter: blur(6px);
-      }
-      .gate[hidden] {
-        display: none;
-      }
-      .gate-card {
-        width: min(420px, 92%);
-        background: var(--surface);
-        border: 1px solid var(--outline);
-        border-radius: 16px;
-        padding: 22px 20px 18px;
-        text-align: center;
-        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
-      }
-      .gate-card h1 {
-        margin: 0 0 8px;
-        font-size: 20px;
-        font-weight: 800;
-      }
-      .gate-card p {
-        margin: 0 0 14px;
-        color: var(--muted);
-      }
-      .gate-input {
-        width: 100%;
-        height: 40px;
-        border-radius: 10px;
-        border: 1px solid var(--outline);
-        padding: 0 12px;
-        font: inherit;
-      }
-      .gate-actions {
-        margin-top: 12px;
-        display: flex;
-        gap: 10px;
-        justify-content: center;
-      }
-      .btn-solid {
-        padding: 10px 16px;
-        border-radius: 999px;
-        border: 0;
-        cursor: pointer;
-        color: #fff;
-        font-weight: 700;
-        background: linear-gradient(135deg, var(--accent1), var(--accent2));
-        box-shadow: 0 10px 24px rgba(255, 82, 120, 0.3);
-      }
-      .gate-msg {
-        min-height: 20px;
-        margin-top: 8px;
-        color: #c1121f;
-        font-weight: 700;
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        .card,
-        .fab,
-        .bottom-cta .cta-btn {
-          transition: none;
-        }
-      }
-      /* —— 修复：灯箱层级统一抬高，确保按钮永远在最上面 —— */
-      .lightbox {
-        z-index: 1000;
-      } /* 灯箱整体 */
-      .lb-wrap {
-        position: relative;
-        z-index: 1001;
-      } /* 放大媒体包裹层 */
-      .lb-wrap .lb-media {
-        position: relative;
-        z-index: 1001;
-      }
-      .lb-wrap .wm-overlay {
-        z-index: 1002; /* 覆盖在图片之上 */
-        pointer-events: none; /* 不挡按钮点击 */
-      }
-      .lb-controls {
-        position: fixed; /* 脱离文档流，独立堆叠上下文 */
-        z-index: 1003; /* 最高层，压过水印与图片 */
-      }
     </style>
   </head>
-  <body data-locked="1">
-    <!-- 访问密码 Gate -->
-    <div
-      id="gate"
-      class="gate"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="gateTitle"
-    >
-      <form id="gateForm" class="gate-card">
-        <h1 id="gateTitle">请输入访问密码</h1>
-        <p>每次进入都需验证</p>
-        <input
-          id="gatePwd"
-          class="gate-input"
-          type="password"
-          placeholder="密码"
-          autocomplete="current-password"
-        />
-        <div class="gate-actions">
-          <button type="submit" class="btn-solid">进入</button>
-        </div>
-        <div id="gateMsg" class="gate-msg" aria-live="polite"></div>
-      </form>
-    </div>
-
+  <body>
+    <!-- 顶栏（含目录按钮） -->
     <header class="topbar" role="banner">
       <button
         class="menu-btn"
@@ -562,8 +394,8 @@
       >
         目录
       </button>
-      <div class="brand">涩图time • 第一期</div>
-      <div class="spacer"></div>
+      <div class="brand">我的图视频集</div>
+      <div style="height: 0"></div>
     </header>
 
     <!-- 左侧目录抽屉 -->
@@ -635,51 +467,37 @@
     </aside>
 
     <script>
-      /** 媒体清单 */
-      /* ====== 媒体清单（使用 image/ 文件夹）====== */
+      /* ========= 媒体清单（把文件名换成你 image/ 目录下的） ========= */
       const MEDIA = [
-        // ====== 图片示例 ======
-        { type: "image", src: "image/1642686734270.jpg", title: "photo01" },
-        { type: "image", src: "image/1642686734272.jpg", title: "photo02" },
-        {
-          type: "image",
-          src: "image/1642686734276.jpg",
-          title: "我爱你我爱你我爱你我爱你我爱你我爱你我爱你我爱你我爱你",
-        },
-        { type: "image", src: "image/1642686734277.jpg", title: "photo04" },
+        /* 图片 */
+        { type: "image", src: "image/photo01.jpg", title: "photo01" },
+        { type: "image", src: "image/photo02.png", title: "photo02" },
+        { type: "image", src: "image/wallpaper.webp", title: "wallpaper" },
 
-        // 如果你有想单独指定缩略图的，可以加 thumb 字段（否则系统就用 src）
-        // { type: 'image', src: 'image/portrait.jpg', thumb: 'image/portrait-thumb.jpg', title: 'portrait' },
-
-        // ====== 视频示例（建议加 poster 预览图）======
+        /* 视频（建议 mp4/H.264 + AAC；mov 兼容性差） */
         {
           type: "video",
           title: "clip01",
-          poster: "image/clip01-poster.jpg", // 可选：视频封面图（放在 image/）
-          sources: [
-            {
-              src: "image/edfe389d46602e7f5d387d6a9b8e07c2.mp4",
-              type: "video/mp4",
-            },
-            // 如有多码率/格式可追加：{ src: 'image/clip01.webm', type: 'video/webm' },
-          ],
+          poster: "image/clip01-poster.jpg",
+          sources: [{ src: "image/clip01.mp4", type: "video/mp4" }],
         },
         {
           type: "video",
           title: "clip02",
           poster: "image/clip02.jpg",
-          sources: [{ src: "image/clip02.mov", type: "video/quicktime" }],
+          sources: [
+            { src: "image/clip02.mp4", type: "video/mp4" },
+          ] /* 如需 mov，自己改 type */,
         },
       ];
 
-      /* 左侧目录 */
+      /* 目录数据（按需改） */
       const NAV = [
         {
           title: "往期",
           items: [
             { label: "第 01 期", href: "./index.html" },
             { label: "第 02 期", href: "./setu/2/" },
-            { label: "第 03 期", href: "./setu/3/" },
           ],
         },
         {
@@ -696,7 +514,7 @@
         },
       ];
 
-      /* ------- 变量 ------- */
+      /* 变量 */
       const grid = document.getElementById("grid");
       const lightbox = document.getElementById("lightbox");
       const lbPrev = document.getElementById("lbPrev");
@@ -711,14 +529,13 @@
       let isLoading = false;
       let currentIndex = 0;
       let prevFocus = null;
-      // 生成不裁切的缩略图地址（无 thumb 时回退到原图）
+
+      /* 缩略图地址（本地就直接用 src 或 thumb） */
       function getThumbSrc(item) {
-        if (item.thumb) return item.thumb; // 如果你自己给的就是不裁切的，可以保留
-        // Unsplash：使用 fit=max 不裁切；你也可以直接 return item.src
-        return `${item.src}?auto=format&w=1200&q=80&fit=max`;
+        return item.thumb || item.src;
       }
 
-      /* ------- 渲染一个分页 ------- */
+      /* 渲染一个分页 */
       function renderNextPage() {
         if (isLoading) return;
         isLoading = true;
@@ -768,7 +585,6 @@
         isLoading = false;
 
         grid.querySelectorAll("video.thumb").forEach((v) => ioVideo.observe(v));
-
         if (page * pageSize >= filtered.length) {
           try {
             io.unobserve(sentinel);
@@ -776,7 +592,7 @@
         }
       }
 
-      /* ------- 无限滚动触发 ------- */
+      /* 无限滚动触发 */
       const io = new IntersectionObserver(
         (entries) => {
           entries.forEach((ent) => {
@@ -787,7 +603,7 @@
       );
       io.observe(sentinel);
 
-      /* ------- 视频懒加载 ------- */
+      /* 视频懒加载（缩略图） */
       const ioVideo = new IntersectionObserver(
         (entries) => {
           entries.forEach((ent) => {
@@ -805,12 +621,12 @@
         { rootMargin: "600px" }
       );
 
-      /* ------- 灯箱 ------- */
+      /* 灯箱 */
       function openLightbox(idx) {
         if (idx < 0 || idx >= filtered.length) return;
         currentIndex = idx;
 
-        // 删旧包裹层，避免残留
+        // 清旧包裹层
         const oldWrap = lightbox.querySelector(".lb-wrap");
         if (oldWrap) oldWrap.remove();
 
@@ -819,17 +635,31 @@
         if (it.type === "video") {
           el = document.createElement("video");
           el.className = "lb-media";
+
+          /* 关键：移动端内联播放，不自动播放，阻止冒泡 */
           el.setAttribute("controls", "");
-          el.setAttribute("autoplay", "");
           el.setAttribute("playsinline", "");
+          el.setAttribute("webkit-playsinline", "");
+          el.removeAttribute("autoplay");
+          el.muted = false;
           if (it.poster) el.setAttribute("poster", it.poster);
+
           (it.sources || []).forEach((s) => {
             const so = document.createElement("source");
             so.src = s.src;
             if (s.type) so.type = s.type;
             el.appendChild(so);
           });
-          el.setAttribute("aria-label", it.title || "视频预览");
+
+          el.addEventListener("click", (e) => e.stopPropagation(), {
+            passive: true,
+          });
+          el.addEventListener("touchstart", (e) => e.stopPropagation(), {
+            passive: true,
+          });
+          el.addEventListener("touchend", (e) => e.stopPropagation(), {
+            passive: true,
+          });
         } else {
           el = document.createElement("img");
           el.className = "lb-media";
@@ -879,13 +709,16 @@
       lbClose.addEventListener("click", closeLightbox);
       lbPrev.addEventListener("click", () => nav(-1));
       lbNext.addEventListener("click", () => nav(1));
+
+      /* 只点到遮罩本身才关闭（防穿透） */
       lightbox.addEventListener(
         "click",
         (e) => {
-          if (e.target === lightbox) closeLightbox();
+          if (e.target === e.currentTarget) closeLightbox();
         },
         { passive: true }
       );
+
       window.addEventListener("keydown", (e) => {
         if (!lightbox.classList.contains("open")) return;
         if (e.key === "Escape") closeLightbox();
@@ -893,7 +726,7 @@
         if (e.key === "ArrowRight") nav(1);
       });
 
-      /* ------- 渲染目录 ------- */
+      /* 渲染目录抽屉 */
       function renderNav() {
         const root = document.getElementById("menuList");
         if (!root) return;
@@ -920,7 +753,7 @@
       }
       renderNav();
 
-      /* ------- 目录抽屉开关 ------- */
+      /* 目录抽屉开关 */
       const menuBtn = document.getElementById("menuBtn");
       const drawer = document.getElementById("menuDrawer");
       const scrim = document.getElementById("scrim");
@@ -953,79 +786,14 @@
         if (e.target.tagName.toLowerCase() === "a") closeDrawer();
       });
 
-      /* —— 同步底部按钮与右下角悬浮按钮链接 —— */
+      /* 同步底部按钮与右下角悬浮按钮链接 */
       (function syncBottomBtnHref() {
         var fab = document.querySelector(".fab");
         var bottomBtn = document.getElementById("btn-bottom-cta");
         if (fab && bottomBtn) bottomBtn.href = fab.href;
       })();
 
-      /* ======== 密码 Gate（每次输入；支持哈希/明文兜底） ======== */
-      const GATE = {
-        salt: "st-time-v1",
-        hash: "946174e4dfa66e0471d5a5fa8d134975784e1ce759c9faf421b5559464be8f63", // sha256('1234'+salt)
-        remember: false, // 保持每次都输入
-        ttlHours: 24,
-        storageKey: "gate_v1_token",
-        plain: "1234", // WebCrypto 不可用时的兜底
-      };
-      async function sha256Hex(str) {
-        if (window.crypto && crypto.subtle) {
-          try {
-            const buf = await crypto.subtle.digest(
-              "SHA-256",
-              new TextEncoder().encode(str)
-            );
-            return [...new Uint8Array(buf)]
-              .map((b) => b.toString(16).padStart(2, "0"))
-              .join("");
-          } catch (e) {}
-        }
-        return null; // 本地 file:// 或老浏览器会走兜底
-      }
-      window._gateHash = async (pwd) =>
-        console.log(await sha256Hex(pwd + GATE.salt)); // 控制台工具
-
-      const gateEl = document.getElementById("gate");
-      const gateForm = document.getElementById("gateForm");
-      const gatePwd = document.getElementById("gatePwd");
-      const gateMsg = document.getElementById("gateMsg");
-
-      function unlockUI(silent) {
-        gateEl.hidden = true;
-        document.body.removeAttribute("data-locked");
-        if (!silent) gateMsg.textContent = "";
-        if (!window.__booted) {
-          window.__booted = true;
-          renderNextPage();
-        }
-      }
-      (function gateInit() {
-        gateEl.hidden = false;
-        setTimeout(() => gatePwd.focus(), 0);
-      })();
-      gateForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        gateMsg.textContent = "";
-        const input = (gatePwd.value || "").trim();
-        if (!input) {
-          gateMsg.textContent = "请输入密码";
-          gatePwd.focus();
-          return;
-        }
-        const h = await sha256Hex(input + GATE.salt);
-        const ok =
-          (h && GATE.hash && h === GATE.hash) ||
-          (!h && GATE.plain && input === GATE.plain);
-        if (ok) {
-          unlockUI(false);
-        } else {
-          gateMsg.textContent = "密码不正确";
-          gatePwd.select();
-        }
-      });
-
-      /* —— 生成 SVG 水印，写入 CSS 变量 --wm-bg（全站生效） —— */
+      /* 生成 SVG 水印，写入 CSS 变量 --wm-bg（全站生效） */
       const WM_TEXT = "qq:38190187"; // ← 改成你的水印文字
       const WM_SIZE = 240;
       const WM_COLOR = "#FFFFFF";
@@ -1038,6 +806,9 @@
         const url = `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
         document.documentElement.style.setProperty("--wm-bg", url);
       })();
+
+      /* 首屏渲染 */
+      renderNextPage();
     </script>
   </body>
 </html>
