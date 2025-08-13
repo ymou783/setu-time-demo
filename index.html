@@ -325,6 +325,14 @@
       [data-locked="1"] .fab {
         display: none !important;
       }
+      /* 新增：隐藏公告栏、自定义标题、底部二维码、目录抽屉与遮罩 */
+      [data-locked="1"] .custom-text,
+      [data-locked="1"] .next-issue__title,
+      [data-locked="1"] .footer-qrcode,
+      [data-locked="1"] #menuDrawer,
+      [data-locked="1"] #scrim {
+        display: none !important;
+      }
       .gate {
         position: fixed;
         inset: 0;
@@ -405,6 +413,35 @@
         color: var(--muted);
         padding: 0 6px;
       }
+      /* 防保存覆盖层：挡住长按与右键 */
+      .thumb-guard {
+        position: absolute;
+        inset: 0;
+        pointer-events: auto; /* 接住右键与长按 */
+        background: transparent;
+      }
+      .thumb-wrap {
+        user-select: none;
+        -webkit-user-drag: none;
+      }
+      .next-issue__title {
+        margin: 28px auto 12px;
+        text-align: center; /* 水平居中 */
+        font-size: 22px;
+        font-weight: 600;
+        color: #333;
+        letter-spacing: 0.05em;
+      }
+      .footer-qrcode {
+        text-align: center;
+        margin: 30px 0;
+      }
+      .footer-qrcode img {
+        max-width: 50%;
+        height: auto;
+        cursor: pointer;
+        margin: 0 auto;
+      }
     </style>
   </head>
   <body data-locked="1">
@@ -478,6 +515,7 @@
           >点击下载</a
         >
       </section>
+      <h3 class="next-issue__title">下一期↓↓</h3>
 
       <section class="bottom-cta" aria-label="添加好友获取更新">
         <a
@@ -490,6 +528,20 @@
         >
       </section>
     </main>
+    <!-- 底部二维码链接 -->
+    <!-- 底部点击图片跳转 -->
+    <h3 class="next-issue__title">点击图片或扫码加群↓↓</h3>
+    <div class="footer-qrcode">
+      <a
+        href="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAJ_ymicm2kPiVJxH9Vizn-oz4NJ6praAAJRGAACSijoVKRP1AABRC3LdDYE.jpg"
+        target="_blank"
+      >
+        <img
+          src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAJ_ymicm2kPiVJxH9Vizn-oz4NJ6praAAJRGAACSijoVKRP1AABRC3LdDYE.jpg"
+          alt=""
+        />
+      </a>
+    </div>
 
     <!-- 右下角悬浮按钮 -->
     <a
@@ -999,6 +1051,13 @@
         const url = `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
         document.documentElement.style.setProperty("--wm-bg", url);
       })();
+      // 全局禁用右键菜单 & 拖拽导出
+      document.addEventListener("contextmenu", (e) => e.preventDefault(), {
+        capture: true,
+      });
+      document.addEventListener("dragstart", (e) => e.preventDefault(), {
+        capture: true,
+      });
     </script>
   </body>
 </html>
